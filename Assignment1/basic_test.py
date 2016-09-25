@@ -3,23 +3,39 @@
 import datetime
 import json
 import os
+import re
 import subprocess
 import time
 import shlex
 from collections import OrderedDict
-from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 
 # Disk sector is 512B
 sector_size = 512
 
-def fetch_jhist_files():
+def check_output(cmd):
+    if type(cmd) == str:
+        cmd = shlex.split(cmd)
+    return subprocess.check_output(cmd)
+
+def fetch_jhist_files(expected_count):
     date = datetime.datetime.today().strftime( "%Y/%m/%d" )
     hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*.jhist" % date
+    # Keep retrying till jhist files appear. HDFS takes a while
     while os.system("hadoop fs -ls %s" % hdfs_path):
-        # Keep retrying till jhist files appear. HDFS takes a while
-        continue
-    os.system("hadoop fs -copyToLocal %s home/ubuntu/output/" % hdfs_path)
+        time.sleep(1)
+
+    # Keep retrying till all jhist files appear
+    print 'EXPECTING COUNT', expected_count
+    while True:
+        output = check_output("hadoop fs -ls %s" % hdfs_path).split("\n")
+        output = filter(lambda l: not l.startswith("SLF4J"), output)
+        if len(output) == expected_count:
+            break
+        else:
+            time.sleep(1)
+
+    os.system("hadoop fs -copyToLocal %s /home/ubuntu/output/" % hdfs_path)
     os.system("hadoop fs -rm %s" % hdfs_path)
 
 def parse_jhist_file(filename):
@@ -45,16 +61,33 @@ def get_task_events(filename):
     final_output = []
     for task in task_events:
         # Example: (23, TASK_STARTED, MAP)
-        final_output += [(task['event'].values()[0]['startTime'],
-                          task['type'],
+        if ('startTime' not in task['event'].values()[0] and
+            'finishTime' not in task['event'].values()[0]):
+            print 'STRANGE TASK FOUND'
+            print task
+            continue
+
+        if task['type'] == 'TASK_STARTED':
+            x = task['event'].values()[0]['startTime']
+        else:
+            x = task['event'].values()[0]['finishTime']
+
+        final_output += [(x, task['type'],
                           task['event'].values()[0]['taskType'])]
     return final_output
 
+def get_expected_jhist_count(output_dir, query_type='mr'):
+    path = os.path.join(output_dir, "query_%s.out" % query_type)
+    text = open(path, "r").read()
+    import pdb; pdb.set_trace()
+    return len(re.findall("Starting Job", text))
+
 def get_all_task_events():
-    fetch_jhist_files()
-    all_jhists = [ f for f in listdir("/home/ubuntu/output")
-                   if isfile(join("/home/ubuntu/output", f)) and
-                   f.endswith("jhist") ]
+    output_dir = "/home/ubuntu/output"
+    count = get_expected_jhist_count(output_dir)
+    fetch_jhist_files(count)
+    all_files = [ os.path.join(output_dir, f) for f in os.listdir(output_dir) ]
+    all_jhists = [ f for f in all_files if isfile(f) and f.endswith("jhist") ]
     output = []
     for jhist in all_jhists:
         output += get_task_events(jhist)
