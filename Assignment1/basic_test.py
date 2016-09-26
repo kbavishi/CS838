@@ -5,9 +5,10 @@ import itertools
 import json
 import os
 import re
-import subprocess
-import time
 import shlex
+import subprocess
+import sys
+import time
 from collections import OrderedDict
 from os.path import isfile
 
@@ -15,6 +16,8 @@ from os.path import isfile
 sector_size = 512
 
 slaves = ["vm1", "vm2", "vm3", "vm4"]
+mr_output_file = "final_output_mr.txt"
+tez_output_file = "final_output_tez.txt"
 
 def check_output(cmd):
     if type(cmd) == str:
@@ -242,10 +245,13 @@ def run_mr_query(query_num):
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
     timeline, job_stats, map_tasks, reduce_tasks = get_all_mr_task_events()
+    results["map_tasks"] = map_tasks
+    results["reduce_tasks"] = reduce_tasks
+
     graph = draw_graph(job_stats)
     os.system("rm -rf output/*.jhist")
 
-    return results, timeline, job_stats, graph, map_tasks, reduce_tasks
+    return results, timeline, job_stats, graph
 
 def parse_tez_hist_file(filename):
     lines = open(filename, "r").readlines()
@@ -381,8 +387,8 @@ def run_tez_query(query_num):
 
     return results, timeline
 
-def write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks):
-    f = open( "final_output_mr", "a" )
+def write_mr_output(results, timeline, job_stats, graph):
+    f = open(mr_output_file, 'a')
     f.write("%s\n" % results)
 
     for job_id, _, _, map_num, reduce_num in job_stats:
@@ -396,13 +402,12 @@ def write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks):
         f.write("%d %s %s\n" % (t, task_event, task_type))
     f.write("\n")
 
-    f.write("%d %d\n" % (map_tasks, reduce_tasks))
     f.write("-"*50)
     f.write("\n")
     f.close()
 
 def write_tez_output(results, timeline):
-    f = open( "final_output_tez", "a" )
+    f = open(tez_output_file, 'a')
     f.write("%s\n" % results)
 
     f.write("\n")
@@ -414,15 +419,18 @@ def write_tez_output(results, timeline):
     f.close()
 
 def main():
-    #for query in [12, 21, 50, 71, 85]:
-    for query in [12]:
-        #results, timeline, job_stats, graph, map_tasks, reduce_tasks = run_mr_query(query)
-        #print results
-        #print map_tasks, reduce_tasks
+    if os.path.exists(mr_output_file) or os.path.exists(tez_output_file):
+        print "Please create a backup of previous output files and then remove them"
+        sys.exit(1)
+
+    for query in [12, 21, 50, 71, 85]:
+        results, timeline, job_stats, graph = run_mr_query(query)
+        print results
         
-        #print "-" * 50
-        #print
-        #write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks)
+        write_mr_output(results, timeline, job_stats, graph)
+        print "-" * 50
+        print
+
         results, timeline = run_tez_query(query)
         print results
         print "-" * 50
