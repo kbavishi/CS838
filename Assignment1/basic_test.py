@@ -8,16 +8,25 @@ import re
 import shlex
 import subprocess
 import sys
+import threading
 import time
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from os.path import isfile
 
 # Disk sector is 512B
 sector_size = 512
 
 slaves = ["vm1", "vm2", "vm3", "vm4"]
+
+output_dir = "/home/ubuntu/output"
+tcpds_workload_dir = os.path.join("/home/ubuntu/workload",
+                                  "hive-tpcds-tpch-workload")
+
 mr_output_file = "final_output_mr.txt"
 tez_output_file = "final_output_tez.txt"
+
+JobStat = namedtuple("JobStat", ["job_id", "hdfs_bytes_read",
+                                 "hdfs_bytes_written", "map_num", "reduce_num"])
 
 def check_output(cmd):
     if type(cmd) == str:
@@ -66,41 +75,42 @@ def get_task_events(filename):
                              event["type"] == "TASK_FAILED" or
                              event["type"] == "TASK_FINISHED")
     task_events = filter(is_task, result)
-    final_output = []
+    timeline = []
     map_tasks, reduce_tasks = 0, 0
     for task in task_events:
         # Example: (23, TASK_STARTED, MAP)
-        if ('startTime' not in task['event'].values()[0] and
-            'finishTime' not in task['event'].values()[0]):
+        info = task['event'].values()[0]
+
+        if ('startTime' not in info and 'finishTime' not in info):
             print 'STRANGE TASK FOUND'
             print task
             continue
 
         if task['type'] == 'TASK_STARTED':
-            x = task['event'].values()[0]['startTime']
+            t = info['startTime']
         else:
-            x = task['event'].values()[0]['finishTime']
+            t = info['finishTime']
 
-        final_output += [(x, task['type'],
-                          task['event'].values()[0]['taskType'])]
-        if task['event'].values()[0]['taskType'] == 'MAP':
+        timeline += [(t, task['type'], info['taskType'])]
+        if info['taskType'] == 'MAP':
             map_tasks += 1
         else:
             reduce_tasks += 1
 
-    return final_output, map_tasks, reduce_tasks
+    return timeline, map_tasks, reduce_tasks
 
 def get_job_stats(filename):
     result = parse_jhist_file(filename)
     for task in result:
         if task["type"] == "JOB_FINISHED":
-            job_id = task['event'].values()[0]['jobid']
-            hdfs_bytes_read = task["event"].values()[0]["totalCounters"]["groups"][0]["counts"][5]["value"]
-            hdfs_bytes_written = task["event"].values()[0]["totalCounters"]["groups"][0]["counts"][6]["value"]
+            info = task['event'].values()[0]
+            job_id = info['jobid']
+            hdfs_bytes_read = info["totalCounters"]["groups"][0]["counts"][5]["value"]
+            hdfs_bytes_written = info["totalCounters"]["groups"][0]["counts"][6]["value"]
             break
     return job_id, hdfs_bytes_read, hdfs_bytes_written
 
-def get_expected_jhist_count(output_dir, query_type='mr'):
+def get_expected_jhist_count(query_type='mr'):
     os.system("sync")
     path = os.path.join(output_dir, "query_%s.out" % query_type)
     text = open(path, "r").read()
@@ -109,7 +119,6 @@ def get_expected_jhist_count(output_dir, query_type='mr'):
     return len(re.findall("Starting Job", text)), job_id
 
 def get_all_mr_task_events():
-    output_dir = "/home/ubuntu/output"
     count, job_id = get_expected_jhist_count(output_dir)
     fetch_jhist_files(count, job_id)
     all_files = [ os.path.join(output_dir, f) for f in os.listdir(output_dir) ]
@@ -120,8 +129,8 @@ def get_all_mr_task_events():
         tl, map_num, reduce_num = get_task_events(jhist)
         timeline.extend(tl)
         job_id, hdfs_bytes_read, hdfs_bytes_written = get_job_stats(jhist)
-        job_stats += [(job_id, hdfs_bytes_read, hdfs_bytes_written, map_num,
-                       reduce_num)]
+        job_stats += [JobStat(job_id, hdfs_bytes_read, hdfs_bytes_written,
+                              map_num, reduce_num)]
     timeline = sorted(timeline)
 
     map_tasks, reduce_tasks = 0, 0
@@ -139,26 +148,28 @@ def almost_equal(value1, value2):
     return value1*(1-tolerance) <= value2 <= value1*(1+tolerance)
 
 def draw_graph(job_stats):
+    # Graph stores children of a node.
+    # Eg: graph["A"] = "B" means that B is a child of A.
     graph = {}
     for job1, job2 in itertools.combinations(job_stats, 2):
-        # Compare read of job1 to write of job2. If equal, it means job2 is
-        # parent.
-        # Compare write of job1 to read of job2. If equal, it means job1 is
-        # parent.
-        if almost_equal(job1[1], job2[2]):
-            # Print follow order
-            print "%s -> %s" % (job2[0], job1[0])
-            graph[job2[0]] = job1[0]
-        elif almost_equal(job1[2], job2[1]):
-            # Print follow order
-            print "%s -> %s" % (job1[0], job2[0])
-            graph[job1[0]] = job2[0]
+        # CASE A: Compare HDFS bytes read by job1 to HDFS bytes written by job2. If
+        # equal, it means job2 is parent.
+        # CASE B: Compare HDFS bytes written by job1 to HDFS bytes read by job2. If
+        # equal, it means job1 is parent.
+        if almost_equal(job1.hdfs_bytes_read, job2.hdfs_bytes_written):
+            # CASE A
+            print "%s -> %s" % (job2.job_id, job1.job_id)
+            graph[job2.job_id] = job1.job_id
+        elif almost_equal(job1.hdfs_bytes_written, job2.hdfs_bytes_read):
+            # CASE B
+            print "%s -> %s" % (job1.job_id, job2.job_id)
+            graph[job1.job_id] = job2.job_id
     return graph
 
 def get_netstats(vm):
     # face |bytes    packets errs drop fifo frame compressed multicast|bytes
     # packets errs drop fifo colls carrier compressed
-    output = subprocess.check_output(shlex.split("ssh %s cat /proc/net/dev" % vm))
+    output = check_output("ssh %s cat /proc/net/dev" % vm)
     lines = output.split("\n")
     for line in lines:
         line = line.strip()
@@ -179,7 +190,7 @@ def get_all_netstats():
 
 def find_disk(vm):
     # Get mountpoints
-    paths = subprocess.check_output(shlex.split("ssh %s df -H" % vm)).split("\n")
+    paths = check_output("ssh %s df -H" % vm).split("\n")
     for path in paths:
         if "workspace" in path:
             # We have found it
@@ -188,7 +199,7 @@ def find_disk(vm):
 
 def get_diskstats(vm):
     diskname = find_disk(vm)
-    output = subprocess.check_output(shlex.split("ssh %s cat /proc/diskstats" % vm))
+    output = check_output("ssh %s cat /proc/diskstats" % vm)
     lines = output.split("\n")
     for line in lines:
         if diskname in line:
@@ -219,9 +230,12 @@ def run_mr_query(query_num):
     for vm in slaves:
         os.system("ssh %s sudo bash drop_caches.sh" % vm)
 
-    cmd = "(hive --hiveconf hive.execution.engine=mr -f "\
-    "/home/ubuntu/workload/hive-tpcds-tpch-workload/sample-queries-tpcds/query%d.sql "\
-    "--database tpcds_text_db_1_50) 2> output/query_mr.out" % query_num
+    query_output = os.path.join(output_dir, "query_mr.out")
+    query_path = os.path.join(tcpds_workload_dir,
+                              "sample-queries-tpcds/query%d.sql" % query_num)
+
+    cmd = "(hive --hiveconf hive.execution.engine=mr "\
+    "-f %s --database tpcds_text_db_1_50) 2> %s" % (query_path, query_output)
 
     print "About to run MR query", query_num
 
@@ -229,7 +243,13 @@ def run_mr_query(query_num):
     rx_bytes_start, tx_bytes_start = get_all_netstats()
     read_bytes_start, write_bytes_start = get_all_diskstats()
 
+    # Start a subprocess to follow the query output
+    #proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
+    #t = threading.Thread(target=follow_query_out, args=('mr',))
+    # Run the actual query command
     os.system(cmd)
+    # Kill the subprocess following query output. Not needed anymore
+    #proc.kill()
 
     end_time = time.time()
     rx_bytes_end, tx_bytes_end = get_all_netstats()
@@ -267,6 +287,11 @@ def parse_tez_hist_file(filename):
 
 def get_tez_events(filename):
     result = parse_tez_hist_file(filename)
+
+    # We can only find out the task type (MAP/REDUCE) by finding the type of the
+    # vertex it corresponds to. We first iterate through all VERTEX_INITIALIZED
+    # events and note down the task type. Later while iterating over the
+    # TASK_FINISHED messages, we use the vertex ID to determine the task type
     is_vertex = lambda event: event["events"][0]["eventtype"] == "VERTEX_INITIALIZED"
     vertex_events = filter(is_vertex, result)
 
@@ -279,30 +304,33 @@ def get_tez_events(filename):
             vertex_to_task_type[vertex_id] = "MAP"
         elif "Reducer" in vertex_name:
             vertex_to_task_type[vertex_id] = "REDUCE"
+        else:
+            assert False, "Unrecognized vertex type"
 
     is_task = lambda event: event["events"][0]["eventtype"] == "TASK_FINISHED"
     task_events = filter(is_task, result)
 
-    final_output = []
+    timeline = []
     map_tasks, reduce_tasks = 0, 0
     for task in task_events:
-        # Example: (23, TASK_STARTED, MAP)
+        # Build a timeline of events, where each event looks like:
+        # (23, TASK_STARTED, MAP)
         start_time = task['otherinfo']['startTime']
         end_time = task['otherinfo']['endTime']
 
+        # Use the vertex ID to determine the task type (map/reduce)
         rindex = task['entity'].strip('task_').rindex('_')
         vertex_id = task['entity'].strip('task_')[:rindex]
-
         task_type = vertex_to_task_type[vertex_id]
 
-        final_output += [(start_time, 'TASK_STARTED', task_type)]
-        final_output += [(end_time, 'TASK_FINISHED', task_type)]
+        timeline += [(start_time, 'TASK_STARTED', task_type)]
+        timeline += [(end_time, 'TASK_FINISHED', task_type)]
         if task_type == 'MAP':
             map_tasks += 1
         else:
             reduce_tasks += 1
 
-    return final_output, map_tasks, reduce_tasks
+    return timeline, map_tasks, reduce_tasks
 
 def fetch_tez_history():
     hdfs_path = "/tmp/tez-history/*"
@@ -327,7 +355,6 @@ def fetch_tez_history():
     os.system("hadoop fs -rm %s" % hdfs_path)
 
 def get_all_tez_task_events():
-    output_dir = "/home/ubuntu/output"
     fetch_tez_history()
     all_files = [ os.path.join(output_dir, f) for f in os.listdir(output_dir) ]
     all_hists = [ f for f in all_files if isfile(f) and "history" in f ]
@@ -351,11 +378,14 @@ def run_tez_query(query_num):
     for vm in slaves:
         os.system("ssh %s sudo bash drop_caches.sh" % vm)
 
-    cmd = "(hive --hiveconf hive.execution.engine=tez --hiveconf "\
-    "hive.tez.container.size=4800 --hiveconf "\
-    "hive.tez.java.opts=-Xmx4600m -f "\
-    "/home/ubuntu/workload/hive-tpcds-tpch-workload/sample-queries-tpcds/query%d.sql "\
-    "--database tpcds_text_db_1_50) 2> output/query_tez.out" % query_num
+    query_output = os.path.join(output_dir, "query_tez.out")
+    query_path = os.path.join(tcpds_workload_dir,
+                              "sample-queries-tpcds/query%d.sql" % query_num)
+
+    cmd = "(hive --hiveconf hive.execution.engine=tez "\
+    "--hiveconf hive.tez.container.size=4800 "\
+    "--hiveconf hive.tez.java.opts=-Xmx4600m "\
+    "-f %s --database tpcds_text_db_1_50) 2> %s" % (query_path, query_num)
 
     print "About to run Tez query", query_num
 
@@ -369,7 +399,7 @@ def run_tez_query(query_num):
     rx_bytes_end, tx_bytes_end = get_all_netstats()
     read_bytes_end, write_bytes_end = get_all_diskstats()
 
-    print "Finished running MR query", query_num
+    print "Finished running Tez query", query_num
 
     results = OrderedDict()
     results["run_time"] = end_time - start_time
@@ -383,6 +413,7 @@ def run_tez_query(query_num):
     results["reduce_tasks"] = reduce_tasks
     results["hist_filename"] = hist_filename
 
+    import pdb; pdb.set_trace()
     os.system("rm -rf output/history*")
 
     return results, timeline
@@ -426,17 +457,15 @@ def main():
     for query in [12, 21, 50, 71, 85]:
         results, timeline, job_stats, graph = run_mr_query(query)
         print results
-        
         write_mr_output(results, timeline, job_stats, graph)
         print "-" * 50
         print
 
         results, timeline = run_tez_query(query)
         print results
+        write_tez_output(results, timeline)
         print "-" * 50
         print
-
-        write_tez_output(results, timeline)
 
 if __name__ == '__main__':
     main()
