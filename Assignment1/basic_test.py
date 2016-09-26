@@ -105,7 +105,7 @@ def get_expected_jhist_count(output_dir, query_type='mr'):
     job_id = x.group(1).strip(',').split('_')[1]
     return len(re.findall("Starting Job", text)), job_id
 
-def get_all_task_events():
+def get_all_mr_task_events():
     output_dir = "/home/ubuntu/output"
     count, job_id = get_expected_jhist_count(output_dir)
     fetch_jhist_files(count, job_id)
@@ -241,19 +241,113 @@ def run_mr_query(query_num):
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
-    timeline, job_stats, map_tasks, reduce_tasks = get_all_task_events()
+    timeline, job_stats, map_tasks, reduce_tasks = get_all_mr_task_events()
     graph = draw_graph(job_stats)
     os.system("rm -rf output/*.jhist")
 
     return results, timeline, job_stats, graph, map_tasks, reduce_tasks
 
+def parse_tez_hist_file(filename):
+    lines = open(filename, "r").readlines()
+    lines = lines[1:]
+    # List of JSON objects
+    result = []
+    for line in lines:
+        line = line.strip().strip("\x01")
+        if not line:
+            continue
+        result += [json.loads(line)]
+    return result
+
+def get_tez_events(filename):
+    result = parse_tez_hist_file(filename)
+    is_vertex = lambda event: event["events"][0]["eventtype"] == "VERTEX_INITIALIZED"
+    vertex_events = filter(is_vertex, result)
+
+    # Stores ID to task type mapping
+    vertex_to_task_type = {}
+    for vertex in vertex_events:
+        vertex_id = vertex["entity"].strip("vertex_")
+        vertex_name = vertex["otherinfo"]["vertexName"]
+        if "Map" in vertex_name:
+            vertex_to_task_type[vertex_id] = "MAP"
+        elif "Reducer" in vertex_name:
+            vertex_to_task_type[vertex_id] = "REDUCE"
+
+    is_task = lambda event: event["events"][0]["eventtype"] == "TASK_FINISHED"
+    task_events = filter(is_task, result)
+
+    final_output = []
+    map_tasks, reduce_tasks = 0, 0
+    for task in task_events:
+        # Example: (23, TASK_STARTED, MAP)
+        start_time = task['otherinfo']['startTime']
+        end_time = task['otherinfo']['endTime']
+
+        rindex = task['entity'].strip('task_').rindex('_')
+        vertex_id = task['entity'].strip('task_')[:rindex]
+
+        task_type = vertex_to_task_type[vertex_id]
+
+        final_output += [(start_time, 'TASK_STARTED', task_type)]
+        final_output += [(end_time, 'TASK_FINISHED', task_type)]
+        if task_type == 'MAP':
+            map_tasks += 1
+        else:
+            reduce_tasks += 1
+
+    return final_output, map_tasks, reduce_tasks
+
+def fetch_tez_history():
+    hdfs_path = "/tmp/tez-history/*"
+    # Keep retrying till history files appear. HDFS takes a while
+    while os.system("hadoop fs -ls %s" % hdfs_path):
+        print 'HISTORY FILES YET TO APPEAR'
+        time.sleep(2)
+
+    # Keep retrying till all jhist files appear
+    expected_count = 1
+    print 'EXPECTING COUNT', expected_count
+    while True:
+        output = check_output("hadoop fs -ls %s" % hdfs_path).split("\n")
+        output = filter(lambda l: l and not l.startswith("SLF4J"), output)
+        if len(output) == expected_count:
+            break
+        else:
+            print 'ALL HISTORY FILES YET TO APPEAR'
+            time.sleep(2)
+
+    os.system("hadoop fs -copyToLocal %s /home/ubuntu/output/" % hdfs_path)
+    os.system("hadoop fs -rm %s" % hdfs_path)
+
+def get_all_tez_task_events():
+    output_dir = "/home/ubuntu/output"
+    fetch_tez_history()
+    all_files = [ os.path.join(output_dir, f) for f in os.listdir(output_dir) ]
+    all_hists = [ f for f in all_files if isfile(f) and "history" in f ]
+    assert len(all_hists) == 1, "Should be only one history file"
+    timeline = []
+    job_stats = []
+    hist = all_hists[0]
+
+    timeline, map_tasks, reduce_tasks = get_tez_events(hist)
+    timeline = sorted(timeline)
+
+    return timeline, map_tasks, reduce_tasks, hist
+
 def run_tez_query(query_num):
+    # Clear previous HDFS history files
+    os.system("hadoop fs -rm /tmp/tez-history/*")
+    # Clear local history files
+    os.system("rm -rf output/history*")
+
     # Clear cache buffers
-    os.system("""sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches" """)
+    for vm in slaves:
+        os.system("ssh %s sudo bash drop_caches.sh" % vm)
 
     cmd = "(hive --hiveconf hive.execution.engine=tez --hiveconf "\
-    "hive.tez.container.size=$containerSize --hiveconf "\
-    "hive.tez.java.opts=$containerJvm -f "\
+    "hive.tez.container.size=4800 --hiveconf "\
+    "hive.tez.java.opts=-Xmx4600m -f "\
     "/home/ubuntu/workload/hive-tpcds-tpch-workload/sample-queries-tpcds/query%d.sql "\
     "--database tpcds_text_db_1_50) 2> output/query_tez.out" % query_num
 
@@ -277,10 +371,18 @@ def run_tez_query(query_num):
     results["tx_bytes"] = tx_bytes_end - tx_bytes_start
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
-    return results
+
+    timeline, map_tasks, reduce_tasks, hist_filename = get_all_tez_task_events()
+    results["map_tasks"] = map_tasks
+    results["reduce_tasks"] = reduce_tasks
+    results["hist_filename"] = hist_filename
+
+    os.system("rm -rf output/history*")
+
+    return results, timeline
 
 def write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks):
-    f = open( "final_output", "a" )
+    f = open( "final_output_mr", "a" )
     f.write("%s\n" % results)
 
     for job_id, _, _, map_num, reduce_num in job_stats:
@@ -290,8 +392,8 @@ def write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks):
         f.write("%s -> %s\n" % (key, val))
 
     f.write("\n")
-    for t, map_num, reduce_num in timeline:
-        f.write("%d %d %d\n" % (t, map_num, reduce_num))
+    for t, task_event, task_type in timeline:
+        f.write("%d %s %s\n" % (t, task_event, task_type))
     f.write("\n")
 
     f.write("%d %d\n" % (map_tasks, reduce_tasks))
@@ -299,17 +401,34 @@ def write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks):
     f.write("\n")
     f.close()
 
+def write_tez_output(results, timeline):
+    f = open( "final_output_tez", "a" )
+    f.write("%s\n" % results)
+
+    f.write("\n")
+    for t, task_event, task_type in timeline:
+        f.write("%d %s %s\n" % (t, task_event, task_type))
+    f.write("\n")
+    f.write("-"*50)
+    f.write("\n")
+    f.close()
+
 def main():
-    for query in [12, 21, 50, 71, 85]:
-    #for query in [12]:
-        results, timeline, job_stats, graph, map_tasks, reduce_tasks = run_mr_query(query)
-        print results
-        print map_tasks, reduce_tasks
+    #for query in [12, 21, 50, 71, 85]:
+    for query in [12]:
+        #results, timeline, job_stats, graph, map_tasks, reduce_tasks = run_mr_query(query)
+        #print results
+        #print map_tasks, reduce_tasks
         
+        #print "-" * 50
+        #print
+        #write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks)
+        results, timeline = run_tez_query(query)
+        print results
         print "-" * 50
         print
-        write_output(results, timeline, job_stats, graph, map_tasks, reduce_tasks)
-        #results = run_tez_query(query)
+
+        write_tez_output(results, timeline)
 
 if __name__ == '__main__':
     main()
