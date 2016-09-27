@@ -288,6 +288,39 @@ def parse_tez_hist_file(filename):
 def get_tez_events(filename):
     result = parse_tez_hist_file(filename)
 
+    is_task = lambda event: event["events"][0]["eventtype"] == "TASK_FINISHED"
+    task_events = filter(is_task, result)
+
+    timeline = []
+    non_aggregator, aggregators = 0, 0
+    for task in task_events:
+        # Build a timeline of events, where each event looks like:
+        # (23, TASK_STARTED, MAP)
+        start_time = task['otherinfo']['startTime']
+        end_time = task['otherinfo']['endTime']
+        
+        file_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][0]
+        hdfs_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][2]
+        
+        if hdfs_bytes_read != 0 and file_bytes_read == 0:
+            non_aggregator += 1
+            task_type = 'NON_AGGREGATOR'
+        elif file_bytes_read != 0:
+            aggregators += 1
+            task_type = 'AGGREGATOR'
+        else:
+            task_type = 'UNKNOWN'
+        # Use the vertex ID to determine the task type (map/reduce)
+
+        timeline += [(start_time, 'TASK_STARTED', task_type)]
+        timeline += [(end_time, 'TASK_FINISHED', task_type)]
+
+    return timeline, non_aggregator, aggregators
+
+
+def get_tez_events_old(filename):
+    result = parse_tez_hist_file(filename)
+
     # We can only find out the task type (MAP/REDUCE) by finding the type of the
     # vertex it corresponds to. We first iterate through all VERTEX_INITIALIZED
     # events and note down the task type. Later while iterating over the
@@ -363,10 +396,10 @@ def get_all_tez_task_events():
     job_stats = []
     hist = all_hists[0]
 
-    timeline, map_tasks, reduce_tasks = get_tez_events(hist)
+    timeline, non_aggregators, aggregators = get_tez_events(hist)
     timeline = sorted(timeline)
 
-    return timeline, map_tasks, reduce_tasks, hist
+    return timeline, non_aggregators, aggregators, hist
 
 def run_tez_query(query_num):
     # Clear previous HDFS history files
@@ -408,9 +441,9 @@ def run_tez_query(query_num):
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
-    timeline, map_tasks, reduce_tasks, hist_filename = get_all_tez_task_events()
-    results["map_tasks"] = map_tasks
-    results["reduce_tasks"] = reduce_tasks
+    timeline, non_aggregators, aggregators, hist_filename = get_all_tez_task_events()
+    results["aggregators"] = aggregators
+    results["non_aggregators"] = non_aggregators
     results["hist_filename"] = hist_filename
 
     import pdb; pdb.set_trace()
