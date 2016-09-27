@@ -4,6 +4,7 @@ import datetime
 import itertools
 import json
 import os
+import pexpect
 import re
 import shlex
 import subprocess
@@ -32,6 +33,12 @@ def check_output(cmd):
     if type(cmd) == str:
         cmd = shlex.split(cmd)
     return subprocess.check_output(cmd)
+
+def drop_caches(vm):
+    child = pexpect.spawn("ssh -t %s sudo bash drop_caches.sh" % vm)
+    child.expect(".sudo. password")
+    child.sendline("Ubuntu123$")
+    child.expect(pexpect.EOF)
 
 def fetch_jhist_files(expected_count, job_id):
     date = datetime.datetime.today().strftime( "%Y/%m/%d" )
@@ -110,16 +117,16 @@ def get_job_stats(filename):
             break
     return job_id, hdfs_bytes_read, hdfs_bytes_written
 
-def get_expected_jhist_count(query_type='mr'):
+def get_expected_jhist_count():
     os.system("sync")
-    path = os.path.join(output_dir, "query_%s.out" % query_type)
+    path = os.path.join(output_dir, "query_mr.out")
     text = open(path, "r").read()
     x = re.search( "Starting Job = (\S*)", text )
     job_id = x.group(1).strip(',').split('_')[1]
     return len(re.findall("Starting Job", text)), job_id
 
 def get_all_mr_task_events():
-    count, job_id = get_expected_jhist_count(output_dir)
+    count, job_id = get_expected_jhist_count()
     fetch_jhist_files(count, job_id)
     all_files = [ os.path.join(output_dir, f) for f in os.listdir(output_dir) ]
     all_jhists = [ f for f in all_files if isfile(f) and f.endswith("jhist") ]
@@ -228,7 +235,7 @@ def run_mr_query(query_num):
 
     # Clear cache buffers
     for vm in slaves:
-        os.system("ssh %s sudo bash drop_caches.sh" % vm)
+        drop_caches(vm)
 
     query_output = os.path.join(output_dir, "query_mr.out")
     query_path = os.path.join(tcpds_workload_dir,
@@ -244,12 +251,12 @@ def run_mr_query(query_num):
     read_bytes_start, write_bytes_start = get_all_diskstats()
 
     # Start a subprocess to follow the query output
-    #proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
-    #t = threading.Thread(target=follow_query_out, args=('mr',))
+    os.system("touch %s" % query_output)
+    proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
     # Run the actual query command
     os.system(cmd)
     # Kill the subprocess following query output. Not needed anymore
-    #proc.kill()
+    proc.kill()
 
     end_time = time.time()
     rx_bytes_end, tx_bytes_end = get_all_netstats()
@@ -376,7 +383,7 @@ def run_tez_query(query_num):
 
     # Clear cache buffers
     for vm in slaves:
-        os.system("ssh %s sudo bash drop_caches.sh" % vm)
+        drop_caches(vm)
 
     query_output = os.path.join(output_dir, "query_tez.out")
     query_path = os.path.join(tcpds_workload_dir,
@@ -393,7 +400,13 @@ def run_tez_query(query_num):
     rx_bytes_start, tx_bytes_start = get_all_netstats()
     read_bytes_start, write_bytes_start = get_all_diskstats()
 
+    # Start a subprocess to follow the query output
+    os.system("touch %s" % query_output)
+    proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
+    # Run the actual query command
     os.system(cmd)
+    # Kill the subprocess following query output. Not needed anymore
+    proc.kill()
 
     end_time = time.time()
     rx_bytes_end, tx_bytes_end = get_all_netstats()
@@ -413,7 +426,6 @@ def run_tez_query(query_num):
     results["reduce_tasks"] = reduce_tasks
     results["hist_filename"] = hist_filename
 
-    import pdb; pdb.set_trace()
     os.system("rm -rf output/history*")
 
     return results, timeline
