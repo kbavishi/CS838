@@ -92,7 +92,7 @@ def get_task_events(filename):
             t = info['finishTime']
 
         timeline += [(t, task['type'], info['taskType'])]
-        if info['taskType'] == 'MAP':
+        if task['type'] == 'TASK_STARTED' and info['taskType'] == 'MAP':
             map_tasks += 1
         else:
             reduce_tasks += 1
