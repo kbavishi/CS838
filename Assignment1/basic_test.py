@@ -392,7 +392,7 @@ def run_tez_query(query_num):
     cmd = "(hive --hiveconf hive.execution.engine=tez "\
     "--hiveconf hive.tez.container.size=4800 "\
     "--hiveconf hive.tez.java.opts=-Xmx4600m "\
-    "-f %s --database tpcds_text_db_1_50) 2> %s" % (query_path, query_num)
+    "-f %s --database tpcds_text_db_1_50) 2> %s" % (query_path, query_output)
 
     print "About to run Tez query", query_num
 
