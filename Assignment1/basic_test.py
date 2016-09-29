@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+import threading
 import datetime
 import itertools
 import json
@@ -495,10 +496,59 @@ def write_tez_output(results, timeline):
     f.write("\n")
     f.close()
 
+def contains_tez_AM(output):
+    lines = output.split("\n")
+    for line in lines:
+        count = line.count("DAGAppMaster")
+        if count > 1:
+            return True
+
+    return False
+
+def fail_tez_vm():
+    for vm in slaves:
+        output = check_output("ssh %s ps -aux" % vm)
+        if not contains_tez_AM(output):
+            check_output("ssh %s pkill datanode" % vm)
+            return
+
+def contains_mr_AM(output):
+    lines = output.split("\n")
+    for line in lines:
+        count = line.count("MRAppManager")
+        if count > 1:
+            return True
+
+    return False
+
+def fail_mr_vm():
+    for vm in slaves:
+        output = check_output("ssh %s ps -aux" % vm)
+        if not contains_mr_AM(output):
+            check_output("ssh %s pkill datanode" % vm)
+            return
+
+def fail_tez_25():
+    threading.Timer(105 ,fail_tez_vm)
+
+def fail_tez_75():
+    threading.Timer(315, fail_tez_vm)
+
+def fail_mr_25():
+    threading.Timer(75, fail_mr_vm)
+
+def fail_mr_75():
+    threading.Timer(224, fail_mr_vm)
+
 def main():
     if os.path.exists(mr_output_file) or os.path.exists(tez_output_file):
         print "Please create a backup of previous output files and then remove them"
         sys.exit(1)
+
+    fail_tez_25()
+    #fail_tez_75()
+    #fail_mr_25()
+    #fail_mr_75()
 
     for query in [12, 21, 50, 71, 85]:
         results, timeline, job_stats, graph = run_mr_query(query)
