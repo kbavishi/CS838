@@ -101,7 +101,7 @@ def get_task_events(filename):
         timeline += [(t, task['type'], info['taskType'])]
         if task['type'] == 'TASK_STARTED' and info['taskType'] == 'MAP':
             map_tasks += 1
-        else:
+        elif task['type'] == 'TASK_STARTED' and info['taskType'] == 'REDUCE':
             reduce_tasks += 1
 
     return timeline, map_tasks, reduce_tasks
@@ -299,7 +299,7 @@ def get_tez_events(filename):
     task_events = filter(is_task, result)
 
     timeline = []
-    hdfs_reader, aggregators = 0, 0
+    non_aggregator, aggregators = 0, 0
     for task in task_events:
         # Build a timeline of events, where each event looks like:
         # (23, TASK_STARTED, MAP)
@@ -309,18 +309,20 @@ def get_tez_events(filename):
         file_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][0]
         hdfs_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][2]
         
-        if hdfs_bytes_read != 0:
-            hdfs_reader += 1
-            task_type = 'NON_AGGREGATOR' # the same as hdfs_reader
-        if file_bytes_read != 0:
+        if hdfs_bytes_read != 0 and file_bytes_read == 0:
+            non_aggregator += 1
+            task_type = 'NON_AGGREGATOR'
+        elif file_bytes_read != 0:
             aggregators += 1
             task_type = 'AGGREGATOR'
+        else:
+            task_type = 'UNKNOWN'
         # Use the vertex ID to determine the task type (map/reduce)
 
         timeline += [(start_time, 'TASK_STARTED', task_type)]
         timeline += [(end_time, 'TASK_FINISHED', task_type)]
 
-    return timeline, hdfs_reader, aggregators
+    return timeline, non_aggregator, aggregators
 
 
 def get_tez_events_old(filename):
@@ -401,10 +403,10 @@ def get_all_tez_task_events():
     job_stats = []
     hist = all_hists[0]
 
-    timeline, hdfs_readers, aggregators = get_tez_events(hist)
+    timeline, non_aggregators, aggregators = get_tez_events(hist)
     timeline = sorted(timeline)
 
-    return timeline, hdfs_readers, aggregators, hist
+    return timeline, non_aggregators, aggregators, hist
 
 def run_tez_query(query_num):
     # Clear previous HDFS history files
@@ -452,9 +454,9 @@ def run_tez_query(query_num):
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
-    timeline, hdfs_readers, aggregators, hist_filename = get_all_tez_task_events()
+    timeline, non_aggregators, aggregators, hist_filename = get_all_tez_task_events()
     results["aggregators"] = aggregators
-    results["hdfs_readers"] = hdfs_readers
+    results["non_aggregators"] = non_aggregators
     results["hist_filename"] = hist_filename
 
     os.system("rm -rf output/history*")
@@ -465,8 +467,9 @@ def write_mr_output(results, timeline, job_stats, graph):
     f = open(mr_output_file, 'a')
     f.write("%s\n" % results)
 
-    for job_id, _, _, map_num, reduce_num in job_stats:
-        f.write("%s %d %d\n" % (job_id, map_num, reduce_num))
+    for job_id, hdfs_bytes_read, hdfs_bytes_written, map_num, reduce_num in job_stats:
+        f.write("%s %s %s %d %d\n" % (job_id, hdfs_bytes_read,
+                                      hdfs_bytes_written, map_num, reduce_num))
 
     for key, val in graph.items():
         f.write("%s -> %s\n" % (key, val))
