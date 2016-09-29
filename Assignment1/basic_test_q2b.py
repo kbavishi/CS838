@@ -136,7 +136,7 @@ def get_task_events(filename):
         timeline += [(t, task['type'], info['taskType'])]
         if task['type'] == 'TASK_STARTED' and info['taskType'] == 'MAP':
             map_tasks += 1
-        else:
+        elif task['type'] == 'TASK_STARTED' and info['taskType'] == 'REDUCE':
             reduce_tasks += 1
 
     return timeline, map_tasks, reduce_tasks
