@@ -109,6 +109,7 @@ def get_task_events(filename):
 
 def get_job_stats(filename):
     result = parse_jhist_file(filename)
+    job_id, hdfs_bytes_read, hdfs_bytes_written = 0, 0, 0
     for task in result:
         if task["type"] == "JOB_FINISHED":
             info = task['event'].values()[0]
@@ -253,11 +254,11 @@ def run_mr_query(query_num):
 
     # Start a subprocess to follow the query output
     os.system("touch %s" % query_output)
-    proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
+    #proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
     # Run the actual query command
     os.system(cmd)
     # Kill the subprocess following query output. Not needed anymore
-    proc.kill()
+    #proc.kill()
 
     end_time = time.time()
     rx_bytes_end, tx_bytes_end = get_all_netstats()
@@ -278,6 +279,7 @@ def run_mr_query(query_num):
 
     graph = draw_graph(job_stats)
     os.system("rm -rf output/*.jhist")
+    sys.exit(1)
 
     return results, timeline, job_stats, graph
 
@@ -484,6 +486,27 @@ def write_mr_output(results, timeline, job_stats, graph):
     f.write("\n")
     f.close()
 
+def write_mr_output_q3(results, timeline, job_stats, graph, filename):
+    f = open(filename, 'a')
+    f.write("%s\n" % results)
+
+    for job_id, hdfs_bytes_read, hdfs_bytes_written, map_num, reduce_num in job_stats:
+        f.write("%s %s %s %d %d\n" % (job_id, hdfs_bytes_read,
+                                      hdfs_bytes_written, map_num, reduce_num))
+
+    for key, val in graph.items():
+        f.write("%s -> %s\n" % (key, val))
+
+    f.write("\n")
+    for t, task_event, task_type in timeline:
+        f.write("%d %s %s\n" % (t, task_event, task_type))
+    f.write("\n")
+
+    f.write("-"*50)
+    f.write("\n")
+    f.close()
+
+
 def write_tez_output(results, timeline):
     f = open(tez_output_file, 'a')
     f.write("%s\n" % results)
@@ -496,6 +519,19 @@ def write_tez_output(results, timeline):
     f.write("\n")
     f.close()
 
+def write_tez_output_q3(results, timeline, filename):
+    f = open(filename, 'a')
+    f.write("%s\n" % results)
+
+    f.write("\n")
+    for t, task_event, task_type in timeline:
+        f.write("%d %s %s\n" % (t, task_event, task_type))
+    f.write("\n")
+    f.write("-"*50)
+    f.write("\n")
+    f.close()
+
+
 def contains_tez_AM(output):
     lines = output.split("\n")
     for line in lines:
@@ -507,61 +543,133 @@ def contains_tez_AM(output):
 
 def fail_tez_vm():
     for vm in slaves:
-        output = check_output("ssh %s ps -aux" % vm)
+        output = check_output("ssh %s bash get_pid.sh DAGAppMaster" % vm)
         if not contains_tez_AM(output):
-            check_output("ssh %s pkill datanode" % vm)
+            datanode_pid = get_datanode_pid(output)
+	    output = check_output("ssh %s bash get_pid.sh datanode" % vm)
+            check_output("ssh %s kill %d" % (vm, datanode_pid))
+            print ("Failed datanode on %s for Tez Query" % vm)
             return
 
 def contains_mr_AM(output):
     lines = output.split("\n")
     for line in lines:
-        count = line.count("MRAppManager")
+        count = line.count("MRAppMaster")
         if count > 1:
             return True
 
     return False
 
 def fail_mr_vm():
+    print "called fail mr vm function about to search for non master vm\n"*50
     for vm in slaves:
-        output = check_output("ssh %s ps -aux" % vm)
+        output = check_output("ssh %s bash get_pid.sh MRAppMaster" % vm)
+	print "got the output for ps..." 
         if not contains_mr_AM(output):
-            check_output("ssh %s pkill datanode" % vm)
+	    output = check_output("ssh %s bash get_pid.sh datanode" %vm)
+            datanode_pid = get_datanode_pid(output)
+	    print "found the pid for datanode..sending fail command" 
+            check_output("ssh %s kill %d" % (vm, datanode_pid))
+            print ("Failed datanode on %s for MR Query" % vm)
             return
 
-def fail_tez_25():
-    threading.Timer(105 ,fail_tez_vm)
+def get_datanode_pid(output):
+    lines = output.split("\n")
+    for line in lines:
+        count = line.count("datanode")
+        if count > 1:
+            line = line.split()
+            pid = int(line[1])
+            return pid
+    raise Exception ("Datanode PID not found")
 
-def fail_tez_75():
-    threading.Timer(315, fail_tez_vm)
+def fail_tez_At(t):
+    threading.Timer(t, fail_tez_vm).start()
 
-def fail_mr_25():
-    threading.Timer(75, fail_mr_vm)
+def fail_mr_At(t):
+    threading.Timer(t, fail_mr_vm).start()
 
-def fail_mr_75():
-    threading.Timer(224, fail_mr_vm)
+def do_q3():
+    
+    query = 71
+    restart_hadoop()    
+
+    results, timeline, job_stats, graph = run_mr_query(query)
+    print results
+    write_mr_output_q3(results, timeline, job_stats, graph, "final_q3_mr_base.txt")
+    print "-" * 50
+    print
+    mr_base_time = results["run_time"]
+        
+    results, timeline = run_tez_query(query)
+    print results
+    write_tez_output_q3(results, timeline, "final_q3_tez_base.txt")
+    print "-" * 50
+    print
+    tez_base_time = results["run_time"]	
+    
+    restart_hadoop()       
+
+    fail_mr_At(int(mr_base_time * 0.25))
+    results, timeline, job_stats, graph = run_mr_query(query)
+    print results
+    write_mr_output_q3(results, timeline, job_stats, graph, "final_mr_fail_25.txt")
+    print "-" * 50
+
+    restart_hadoop()       
+
+    fail_mr_At(int(mr_base_time * 0.75))
+    results, timeline, job_stats, graph = run_mr_query(query)
+    print results
+    write_mr_output_q3(results, timeline, job_stats, graph, "final_mr_fail_75.txt")
+    print "-" * 50
+    
+    restart_hadoop()       
+    fail_tez_At(int(tez_base_time * 0.25))
+
+    results, timeline = run_tez_query(query)
+    print results
+    write_tez_output_q3(results, timeline, "final_tez_fail_25.txt")
+    print "-" * 50
+    print
+
+    restart_hadoop()
+    fail_tez_At(int(tez_base_time * 0.75))
+    results,timeline = run_tez_query(query)
+    print results
+    write_tez_output_q3(results, timeline, "final_tez_fail_75.txt")
+    print "-" * 50
+    print 
+
+def restart_hadoop():
+    os.system("stop_all")
+    os.system("start_all")
+
 
 def main():
     if os.path.exists(mr_output_file) or os.path.exists(tez_output_file):
         print "Please create a backup of previous output files and then remove them"
         sys.exit(1)
 
-    fail_tez_25()
-    #fail_tez_75()
-    #fail_mr_25()
-    #fail_mr_75()
+    question3 = True
 
-    for query in [12, 21, 50, 71, 85]:
+    for query in [71]:
         results, timeline, job_stats, graph = run_mr_query(query)
+	print "MR Query done... Printing Results.."
         print results
         write_mr_output(results, timeline, job_stats, graph)
         print "-" * 50
         print
-
-        results, timeline = run_tez_query(query)
+        
+	results, timeline = run_tez_query(query)
         print results
         write_tez_output(results, timeline)
         print "-" * 50
         print
+
+    if question3 == True:
+	do_q3()
+
 
 if __name__ == '__main__':
     main()
