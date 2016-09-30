@@ -642,9 +642,8 @@ def do_q3():
     print 
 
 def restart_hadoop():
-    os.system("stop_all")
-    os.system("start_all")
-
+    subprocess.check_output( [ "bash", "-c", "source run.sh; stop_all" ] )
+    subprocess.check_output( [ "bash", "-c", "source run.sh; start_all" ] )
 
 def main():
     if os.path.exists(mr_output_file) or os.path.exists(tez_output_file):
@@ -652,7 +651,7 @@ def main():
         sys.exit(1)
 
     question3 = True
-
+    restart_hadoop()
     for query in [71]:
         results, timeline, job_stats, graph = run_mr_query(query)
 	print "MR Query done... Printing Results.."
