@@ -1,0 +1,42 @@
+digraph {
+
+  M_224 [label="M (26)", shape="box", fillcolor="green", style="filled"];
+  HDFS_224 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_225 [label="M (51)", shape="box", fillcolor="green", style="filled"];
+  HDFS_225 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_226 [label="M (75)", shape="box", fillcolor="green", style="filled"];
+  HDFS_226 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_227 [label="M (12)", shape="box", fillcolor="green", style="filled"];
+  HDFS_227 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_228 [label="M (3)", shape="box", fillcolor="green", style="filled"];
+  R_228 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_228 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+ 
+  M_229 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_229 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_229 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_224 -> HDFS_224;
+  HDFS_224 -> M_227;
+
+  M_225 -> HDFS_225;
+  HDFS_225 -> M_227;
+
+  M_226 -> HDFS_226;
+  // XXX Find out if this is a bug
+  HDFS_226 -> M_227
+
+  M_227 -> HDFS_227;
+  HDFS_227 -> M_228;
+
+  M_228 -> R_228;
+  R_228 -> HDFS_228;
+  HDFS_228 -> M_229;
+
+  M_229 -> R_229;
+  R_229 -> HDFS_229;
+}

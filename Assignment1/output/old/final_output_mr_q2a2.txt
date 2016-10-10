@@ -1,0 +1,20 @@
+OrderedDict([('run_time', 204.85062313079834), ('rx_bytes', 3051789573), ('tx_bytes', 2931589437), ('read_bytes', 1276510208), ('write_bytes', 3364544512), ('map_tasks', 23), ('reduce_tasks', 21), ('extra_conf', ['mapred.reduce.tasks=20', 'mapreduce.reduce.shuffle.parallelcopies=5'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 210.02606892585754), ('rx_bytes', 2958385603), ('tx_bytes', 2839579037), ('read_bytes', 1271525376), ('write_bytes', 3259891712), ('map_tasks', 23), ('reduce_tasks', 21), ('extra_conf', ['mapred.reduce.tasks=20', 'mapreduce.reduce.shuffle.parallelcopies=10'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 212.68500304222107), ('rx_bytes', 2365205372), ('tx_bytes', 2271870966), ('read_bytes', 1274441728), ('write_bytes', 3341824000), ('map_tasks', 23), ('reduce_tasks', 21), ('extra_conf', ['mapred.reduce.tasks=20', 'mapreduce.reduce.shuffle.parallelcopies=15'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 203.8967900276184), ('rx_bytes', 3061210079), ('tx_bytes', 2942810267), ('read_bytes', 1275899904), ('write_bytes', 3386966016), ('map_tasks', 23), ('reduce_tasks', 21), ('extra_conf', ['mapred.reduce.tasks=20', 'mapreduce.reduce.shuffle.parallelcopies=20'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 223.39419794082642), ('rx_bytes', 1796537576), ('tx_bytes', 1724885279), ('read_bytes', 1306345472), ('write_bytes', 3403866112), ('map_tasks', 23), ('reduce_tasks', 21), ('extra_conf', ['mapred.reduce.tasks=20', 'mapreduce.reduce.shuffle.parallelcopies=20', 'mapreduce.job.reduce.slowstart.completedmaps=0.05'])])
+
+
+--------------------------------------------------

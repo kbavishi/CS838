@@ -1,0 +1,37 @@
+digraph {
+
+  M_211 [label="M (5)", shape="box", fillcolor="green", style="filled"];
+  HDFS_211 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_212 [label="M (10)", shape="box", fillcolor="green", style="filled"];
+  HDFS_212 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_213 [label="M (2)", shape="box", fillcolor="green", style="filled"];
+  HDFS_213 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_214 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_214 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_214 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_215 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_215 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_215 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+ 
+  M_211 -> HDFS_211;
+  HDFS_211 -> M_212;
+
+  M_212 -> HDFS_212;
+  HDFS_212 -> M_213;
+
+  M_213 -> HDFS_213;
+  // There seems to be no dependency here. XXX Need to confirm
+  // Surprise, surprise. There is a dependency
+  HDFS_213 -> M_214;
+
+  M_214 -> R_214;
+  R_214 -> HDFS_214;
+  HDFS_214 -> M_215;
+
+  M_215 -> R_215;
+  R_215 -> HDFS_215;
+}

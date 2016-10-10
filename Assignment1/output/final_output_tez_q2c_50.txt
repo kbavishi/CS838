@@ -1,0 +1,16 @@
+OrderedDict([('run_time', 413.3869631290436), ('rx_bytes', 9233448492), ('tx_bytes', 8937760508), ('read_bytes', 22338048000), ('write_bytes', 8251117568), ('map_tasks', 92), ('reduce_tasks', 5), ('hist_filename', '/home/ubuntu/output/history.txt.appattempt_1475094777181_0092_000001'), ('extra_conf', ['tez.am.container.reuse.enabled=true', 'tez.runtime.shuffle.parallel.copies=5'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 371.3925530910492), ('rx_bytes', 8637231848), ('tx_bytes', 8332836149), ('read_bytes', 22421405696), ('write_bytes', 8269221888), ('map_tasks', 92), ('reduce_tasks', 5), ('hist_filename', '/home/ubuntu/output/history.txt.appattempt_1475094777181_0093_000001'), ('extra_conf', ['tez.am.container.reuse.enabled=true', 'tez.runtime.shuffle.parallel.copies=10'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 381.7952389717102), ('rx_bytes', 9708533184), ('tx_bytes', 9404324542), ('read_bytes', 22392565760), ('write_bytes', 8250912768), ('map_tasks', 92), ('reduce_tasks', 5), ('hist_filename', '/home/ubuntu/output/history.txt.appattempt_1475094777181_0094_000001'), ('extra_conf', ['tez.am.container.reuse.enabled=true', 'tez.runtime.shuffle.parallel.copies=15'])])
+
+
+--------------------------------------------------
+OrderedDict([('run_time', 369.6127378940582), ('rx_bytes', 9856160421), ('tx_bytes', 9482199509), ('read_bytes', 22444040192), ('write_bytes', 8267505664), ('map_tasks', 92), ('reduce_tasks', 5), ('hist_filename', '/home/ubuntu/output/history.txt.appattempt_1475094777181_0095_000001'), ('extra_conf', ['tez.am.container.reuse.enabled=true', 'tez.runtime.shuffle.parallel.copies=20'])])
+
+
+--------------------------------------------------

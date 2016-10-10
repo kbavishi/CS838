@@ -1,0 +1,37 @@
+digraph {
+
+  M_205 [label="M (26)", shape="box", fillcolor="green", style="filled"];
+  HDFS_205 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_206 [label="M (7)", shape="box", fillcolor="green", style="filled"];
+  HDFS_206 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_207 [label="M (4)", shape="box", fillcolor="green", style="filled"];
+  R_207 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_207 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_208 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_208 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_208 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_209 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_209 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_209 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+ 
+  M_205 -> HDFS_205;
+  HDFS_205 -> M_206;
+
+  M_206 -> HDFS_206;
+  HDFS_206 -> M_207;
+
+  M_207 -> R_207;
+  R_207 -> HDFS_207;
+  HDFS_207 -> M_208;
+
+  M_208 -> R_208;
+  R_208 -> HDFS_208;
+  HDFS_208 -> M_209;
+
+  M_209 -> R_209;
+  R_209 -> HDFS_209;
+}

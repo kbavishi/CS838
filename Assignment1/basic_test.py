@@ -14,6 +14,7 @@ import threading
 import time
 from collections import OrderedDict, namedtuple
 from os.path import isfile
+from graphviz import Digraph
 
 # Disk sector is 512B
 sector_size = 512
@@ -43,16 +44,17 @@ def drop_caches(vm):
 
 def fetch_jhist_files(expected_count, job_id):
     date = datetime.datetime.today().strftime( "%Y/%m/%d" )
-    hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*%s*.jhist" % (date, job_id)
+    jhist_hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*%s*.jhist" % (date, job_id)
+    xml_hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*%s*.xml" % (date, job_id)
     # Keep retrying till jhist files appear. HDFS takes a while
-    while os.system("hadoop fs -ls %s" % hdfs_path):
+    while os.system("hadoop fs -ls %s" % jhist_hdfs_path):
         print 'JHIST FILES YET TO APPEAR'
         time.sleep(2)
 
     # Keep retrying till all jhist files appear
     print 'EXPECTING COUNT', expected_count
     while True:
-        output = check_output("hadoop fs -ls %s" % hdfs_path).split("\n")
+        output = check_output("hadoop fs -ls %s" % jhist_hdfs_path).split("\n")
         output = filter(lambda l: l and not l.startswith("SLF4J"), output)
         if len(output) == expected_count:
             break
@@ -60,8 +62,10 @@ def fetch_jhist_files(expected_count, job_id):
             print 'ALL JHIST FILES YET TO APPEAR'
             time.sleep(2)
 
-    os.system("hadoop fs -copyToLocal %s /home/ubuntu/output/" % hdfs_path)
-    os.system("hadoop fs -rm %s" % hdfs_path)
+    os.system("hadoop fs -copyToLocal %s /home/ubuntu/output/" % jhist_hdfs_path)
+    os.system("hadoop fs -rm %s" % jhist_hdfs_path)
+    os.system("hadoop fs -copyToLocal %s /home/ubuntu/output/" % xml_hdfs_path)
+    os.system("hadoop fs -rm %s" % xml_hdfs_path)
 
 def parse_jhist_file(filename):
     lines = open(filename, "r").readlines()
@@ -127,6 +131,21 @@ def get_expected_jhist_count():
     job_id = x.group(1).strip(',').split('_')[1]
     return len(re.findall("Starting Job", text)), job_id
 
+def parse_xml_file(xml_file):
+    lines = check_output("grep adjacency %s" % xml_file).split("\n")
+    xml_graph = {}
+    for line in lines:
+        if not line:
+            continue
+        pattern = "(Stage-\d*)"
+        stages = re.findall(pattern, line)
+        assert len(stages) >= 2
+        key = stages[0]
+        xml_graph[key] = {}
+        for value in stages[1:]:
+            xml_graph[key][value] = True
+    return xml_graph
+
 def get_all_mr_task_events():
     count, job_id = get_expected_jhist_count()
     fetch_jhist_files(count, job_id)
@@ -142,6 +161,10 @@ def get_all_mr_task_events():
                               map_num, reduce_num)]
     timeline = sorted(timeline)
 
+    all_xmls = [ f for f in all_files if isfile(f) and f.endswith("xml") ]
+    xml = all_xmls[0]
+    xml_graph = parse_xml_file(xml)
+
     map_tasks, reduce_tasks = 0, 0
     for (_, event_type, task_type) in timeline:
         if event_type == 'TASK_STARTED':
@@ -150,7 +173,7 @@ def get_all_mr_task_events():
             else:
                 reduce_tasks += 1
 
-    return timeline, job_stats, map_tasks, reduce_tasks
+    return timeline, job_stats, xml_graph, map_tasks, reduce_tasks
 
 def almost_equal(value1, value2):
     tolerance = 0.01
@@ -230,8 +253,10 @@ def get_all_diskstats():
 def run_mr_query(query_num):
     # Clear previous HDFS jhist files
     date = datetime.datetime.today().strftime( "%Y/%m/%d" )
-    hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*.jhist" % date
-    os.system("hadoop fs -rm %s" % hdfs_path)
+    jhist_hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*.jhist" % date
+    xml_hdfs_path = "/tmp/hadoop-yarn/staging/history/done/%s/000000/*.xml" % date
+    os.system("hadoop fs -rm %s" % jhist_hdfs_path)
+    os.system("hadoop fs -rm %s" % xml_hdfs_path)
     # Clear local jhist files
     os.system("rm -rf output/*.jhist")
 
@@ -254,11 +279,11 @@ def run_mr_query(query_num):
 
     # Start a subprocess to follow the query output
     os.system("touch %s" % query_output)
-    #proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
+    proc = subprocess.Popen(shlex.split("tail -f %s" % query_output))
     # Run the actual query command
     os.system(cmd)
     # Kill the subprocess following query output. Not needed anymore
-    #proc.kill()
+    proc.kill()
 
     end_time = time.time()
     rx_bytes_end, tx_bytes_end = get_all_netstats()
@@ -267,21 +292,21 @@ def run_mr_query(query_num):
     print "Finished running MR query", query_num
 
     results = OrderedDict()
+    results["query"] = query_num
     results["run_time"] = end_time - start_time
     results["rx_bytes"] = rx_bytes_end - rx_bytes_start
     results["tx_bytes"] = tx_bytes_end - tx_bytes_start
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
-    timeline, job_stats, map_tasks, reduce_tasks = get_all_mr_task_events()
+    timeline, job_stats, xml_graph, map_tasks, reduce_tasks = get_all_mr_task_events()
     results["map_tasks"] = map_tasks
     results["reduce_tasks"] = reduce_tasks
 
     graph = draw_graph(job_stats)
     os.system("rm -rf output/*.jhist")
-    sys.exit(1)
 
-    return results, timeline, job_stats, graph
+    return results, timeline, job_stats, graph, xml_graph
 
 def parse_tez_hist_file(filename):
     lines = open(filename, "r").readlines()
@@ -297,35 +322,95 @@ def parse_tez_hist_file(filename):
 
 def get_tez_events(filename):
     result = parse_tez_hist_file(filename)
+    is_vertex = lambda event: (event["events"][0]["eventtype"] ==
+                               "VERTEX_FINISHED")
+    vertex_events = filter(is_vertex, result)
+    job_stats = []
+    job_timeline = []
+    for vertex in vertex_events:
+        job_id = vertex['entity']
+        for counters in vertex['otherinfo']['counters']['counterGroups']:
+            if 'FileSystemCounter' in counters['counterGroupName']:
+                fs_counters = counters['counters']
+            elif 'TaskCounter' in counters['counterGroupName']:
+                task_counters = counters['counters']
+            elif 'HIVE' in counters['counterGroupName']:
+                hive_counters = counters['counters']
+
+        hdfs_bytes_read, hdfs_bytes_written = 0, 0
+        file_bytes_read, file_bytes_written = 0, 0
+        for counter in fs_counters:
+            if counter['counterName'] == 'HDFS_BYTES_READ':
+                hdfs_bytes_read = counter['counterValue']
+            elif counter['counterName'] == 'HDFS_BYTES_WRITTEN':
+                hdfs_bytes_written = counter['counterValue']
+            elif counter['counterName'] == 'FILE_BYTES_READ':
+                file_bytes_read = counter['counterValue']
+            elif counter['counterName'] == 'FILE_BYTES_WRITTEN':
+                file_bytes_written = counter['counterValue']
+
+        merge_phase_time, shuffle_phase_time = 0.0, 0.0
+        shuffle_bytes = 0
+        for counter in task_counters:
+            if counter['counterName'] == 'MERGE_PHASE_TIME':
+                merge_phase_time = counter['counterValue'] * 1./1000
+            elif counter['counterName'] == 'SHUFFLE_PHASE_TIME':
+                shuffle_phase_time = counter['counterValue'] * 1./1000
+            elif counter['counterName'] == 'SHUFFLE_BYTES':
+                shuffle_bytes = counter['counterValue']
+
+        job_time = vertex['otherinfo']['timeTaken'] * 1./1000
+
+        job_stats += [(job_id, hdfs_bytes_read, hdfs_bytes_written,
+                       file_bytes_read, file_bytes_written,
+                       job_time, shuffle_phase_time, merge_phase_time,
+                       shuffle_bytes, hive_counters)]
+        job_timeline += [(vertex['otherinfo']['stats']['firstTaskStartTime'],
+                          "JOB_STARTED", job_id)]
+        job_timeline += [(vertex['otherinfo']['stats']['lastTaskFinishTime'],
+                          "JOB_FINISHED", job_id)]
+
+    job_timeline = sorted(job_timeline)
 
     is_task = lambda event: event["events"][0]["eventtype"] == "TASK_FINISHED"
     task_events = filter(is_task, result)
 
     timeline = []
-    non_aggregator, aggregators = 0, 0
+    non_aggregators, hdfs_readers, aggregators = 0, 0, 0
     for task in task_events:
         # Build a timeline of events, where each event looks like:
         # (23, TASK_STARTED, MAP)
         start_time = task['otherinfo']['startTime']
         end_time = task['otherinfo']['endTime']
         
-        file_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][0]
-        hdfs_bytes_read = task['otherinfo']['counters']['counterGroups'][1]['counters'][2]
-        
-        if hdfs_bytes_read != 0 and file_bytes_read == 0:
-            non_aggregator += 1
-            task_type = 'NON_AGGREGATOR'
-        elif file_bytes_read != 0:
+        counters = task['otherinfo']['counters']['counterGroups'][1]['counters']
+        file_bytes_read, hdfs_bytes_read = 0, 0
+        for counter in counters:
+            if counter['counterName'] == 'FILE_BYTES_READ':
+                file_bytes_read = counter['counterValue']
+            elif counter['counterName'] == 'HDFS_BYTES_READ':
+                hdfs_bytes_read = counter['counterValue']
+
+        if hdfs_bytes_read != 0:
+            hdfs_readers += 1
+            task_type = 'HDFS_READER'
+            timeline += [(start_time, 'TASK_STARTED', task_type)]
+            timeline += [(end_time, 'TASK_FINISHED', task_type)]
+
+            if file_bytes_read == 0:
+                non_aggregators += 1
+                task_type = 'NON_AGGREGATOR'
+                timeline += [(start_time, 'TASK_STARTED', task_type)]
+                timeline += [(end_time, 'TASK_FINISHED', task_type)]
+
+        if file_bytes_read != 0:
             aggregators += 1
             task_type = 'AGGREGATOR'
-        else:
-            task_type = 'UNKNOWN'
-        # Use the vertex ID to determine the task type (map/reduce)
+            timeline += [(start_time, 'TASK_STARTED', task_type)]
+            timeline += [(end_time, 'TASK_FINISHED', task_type)]
 
-        timeline += [(start_time, 'TASK_STARTED', task_type)]
-        timeline += [(end_time, 'TASK_FINISHED', task_type)]
-
-    return timeline, non_aggregator, aggregators
+    return (timeline, job_stats, job_timeline,
+            hdfs_readers, non_aggregators, aggregators)
 
 
 def get_tez_events_old(filename):
@@ -406,10 +491,11 @@ def get_all_tez_task_events():
     job_stats = []
     hist = all_hists[0]
 
-    timeline, non_aggregators, aggregators = get_tez_events(hist)
+    timeline, job_stats, job_timeline, hdfs_readers, non_aggregators, aggregators = get_tez_events(hist)
     timeline = sorted(timeline)
+    job_timeline = sorted(job_timeline)
 
-    return timeline, non_aggregators, aggregators, hist
+    return timeline, job_stats, job_timeline, hdfs_readers, non_aggregators, aggregators, hist
 
 def run_tez_query(query_num):
     # Clear previous HDFS history files
@@ -457,21 +543,22 @@ def run_tez_query(query_num):
     results["read_bytes"] = read_bytes_end - read_bytes_start
     results["write_bytes"] = write_bytes_end - write_bytes_start
 
-    timeline, non_aggregators, aggregators, hist_filename = get_all_tez_task_events()
+    timeline, job_stats, job_timeline, hdfs_readers, non_aggregators, aggregators, hist_filename = get_all_tez_task_events()
+    results["hdfs_readers"] = hdfs_readers
     results["aggregators"] = aggregators
     results["non_aggregators"] = non_aggregators
     results["hist_filename"] = hist_filename
 
     os.system("rm -rf output/history*")
 
-    return results, timeline
+    return results, timeline, job_stats, job_timeline
 
-def write_mr_output(results, timeline, job_stats, graph):
+def write_mr_output(results, timeline, job_stats, graph, xml_graph=None):
     f = open(mr_output_file, 'a')
     f.write("%s\n" % results)
 
     for job_id, hdfs_bytes_read, hdfs_bytes_written, map_num, reduce_num in job_stats:
-        f.write("%s %s %s %d %d\n" % (job_id, hdfs_bytes_read,
+        f.write("%s %s %s %s %s\n" % (job_id, hdfs_bytes_read,
                                       hdfs_bytes_written, map_num, reduce_num))
 
     for key, val in graph.items():
@@ -484,6 +571,20 @@ def write_mr_output(results, timeline, job_stats, graph):
 
     f.write("-"*50)
     f.write("\n")
+    f.close()
+
+    if not xml_graph:
+        return
+    dot_filename = os.path.join(output_dir, "query-%s-xml.dot" %
+                                results["query"])
+    f = open(dot_filename, "w")
+    dot = Digraph(comment="query-%s" % results["query"])
+    for stage in xml_graph:
+        dot.node(stage)
+    for x, values in xml_graph.items():
+        for y in values.keys():
+            dot.edge(x, y)
+    f.write("%s" % str(dot.source))
     f.close()
 
 def write_mr_output_q3(results, timeline, job_stats, graph, filename):
@@ -507,7 +608,7 @@ def write_mr_output_q3(results, timeline, job_stats, graph, filename):
     f.close()
 
 
-def write_tez_output(results, timeline):
+def write_tez_output(results, timeline, job_stats, job_timeline=None):
     f = open(tez_output_file, 'a')
     f.write("%s\n" % results)
 
@@ -515,6 +616,18 @@ def write_tez_output(results, timeline):
     for t, task_event, task_type in timeline:
         f.write("%d %s %s\n" % (t, task_event, task_type))
     f.write("\n")
+
+    f.write("\n")
+    for job_stat in job_stats:
+        f.write("%s\n" % str(job_stat))
+    f.write("\n")
+
+    if job_timeline:
+        f.write("\n")
+        for job in job_timeline:
+            f.write("%s\n" % str(job))
+        f.write("\n")
+
     f.write("-"*50)
     f.write("\n")
     f.close()
@@ -581,7 +694,7 @@ def get_datanode_pid(output):
             line = line.split()
             pid = int(line[1])
             return pid
-    raise Exception ("Datanode PID not found")
+    raise Exception("Datanode PID not found")
 
 def fail_tez_At(t):
     threading.Timer(t, fail_tez_vm).start()
@@ -594,14 +707,14 @@ def do_q3():
     query = 71
     restart_hadoop()    
 
-    results, timeline, job_stats, graph = run_mr_query(query)
+    results, timeline, job_stats, graph, _ = run_mr_query(query)
     print results
     write_mr_output_q3(results, timeline, job_stats, graph, "final_q3_mr_base.txt")
     print "-" * 50
     print
     mr_base_time = results["run_time"]
         
-    results, timeline = run_tez_query(query)
+    results, timeline, _, _ = run_tez_query(query)
     print results
     write_tez_output_q3(results, timeline, "final_q3_tez_base.txt")
     print "-" * 50
@@ -611,7 +724,7 @@ def do_q3():
     restart_hadoop()       
 
     fail_mr_At(int(mr_base_time * 0.25))
-    results, timeline, job_stats, graph = run_mr_query(query)
+    results, timeline, job_stats, graph, _ = run_mr_query(query)
     print results
     write_mr_output_q3(results, timeline, job_stats, graph, "final_mr_fail_25.txt")
     print "-" * 50
@@ -619,7 +732,7 @@ def do_q3():
     restart_hadoop()       
 
     fail_mr_At(int(mr_base_time * 0.75))
-    results, timeline, job_stats, graph = run_mr_query(query)
+    results, timeline, job_stats, graph, _ = run_mr_query(query)
     print results
     write_mr_output_q3(results, timeline, job_stats, graph, "final_mr_fail_75.txt")
     print "-" * 50
@@ -627,7 +740,7 @@ def do_q3():
     restart_hadoop()       
     fail_tez_At(int(tez_base_time * 0.25))
 
-    results, timeline = run_tez_query(query)
+    results, timeline, _, _ = run_tez_query(query)
     print results
     write_tez_output_q3(results, timeline, "final_tez_fail_25.txt")
     print "-" * 50
@@ -635,7 +748,7 @@ def do_q3():
 
     restart_hadoop()
     fail_tez_At(int(tez_base_time * 0.75))
-    results,timeline = run_tez_query(query)
+    results, timeline, _, _ = run_tez_query(query)
     print results
     write_tez_output_q3(results, timeline, "final_tez_fail_75.txt")
     print "-" * 50
@@ -650,25 +763,18 @@ def main():
         print "Please create a backup of previous output files and then remove them"
         sys.exit(1)
 
-    question3 = True
-    restart_hadoop()
-    for query in [71]:
-        results, timeline, job_stats, graph = run_mr_query(query)
-	print "MR Query done... Printing Results.."
+    for query in [12, 21, 50, 71, 85]:
+        results, timeline, job_stats, graph, xml_graph = run_mr_query(query)
         print results
-        write_mr_output(results, timeline, job_stats, graph)
+        write_mr_output(results, timeline, job_stats, graph, xml_graph)
         print "-" * 50
         print
         
-	results, timeline = run_tez_query(query)
+        results, timeline, job_stats, job_timeline = run_tez_query(query)
         print results
-        write_tez_output(results, timeline)
+        write_tez_output(results, timeline, job_stats, job_timeline)
         print "-" * 50
         print
-
-    if question3 == True:
-	do_q3()
-
 
 if __name__ == '__main__':
     main()
