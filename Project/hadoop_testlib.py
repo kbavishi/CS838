@@ -116,7 +116,7 @@ def setup_instances_file(shell, slave_ip_addrs):
 def setup_conf_tar(shell, master_ip):
     # Create a tarball of conf files and send it over.
     # After sending it over, substitute with the master IP
-    shell.run("tar -cvzf conf.tar.gz conf/")
+    os.system("tar -cvzf conf.tar.gz conf/")
     copyFile(shell, "conf.tar.gz", "conf.tar.gz")
 
     shell.run("tar -xvzf conf.tar.gz")
