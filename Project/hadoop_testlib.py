@@ -147,7 +147,7 @@ def kill_old_instances(shell):
     # our approach is more customizable. So kill those instances
     try:
         shell.run_hadoop_cmd("stop all", allow_error=True)
-        shell.run("pgrep -f '(NameNode|DataNode)' | xargs sudo kill")
+        shell.run("pgrep -f '(NameNode|DataNode|NodeManager)' | xargs sudo kill")
     except:
         pass
 
