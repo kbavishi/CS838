@@ -7,7 +7,8 @@ import spur
 from termcolor import cprint
 
 USERNAME = "kbavishi"
-HADOOP_TAR_PATH = "https://archive.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz"
+#HADOOP_TAR_PATH = "https://archive.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz"
+HADOOP_TAR_PATH = "http://apache.cs.utah.edu/hadoop/common/hadoop-3.0.0-alpha1/hadoop-3.0.0-alpha1.tar.gz"
 
 # Issues I think I have resolved
 # 1. Passwordless login - Asks you for yes/no prompt
@@ -88,11 +89,14 @@ def create_ssh_shell(hostname, username=USERNAME, password=None, port=22):
 def install_dependencies(shell):
     try:
         # Check if packages have already been installed to save time
-        shell.run("dpkg -s openjdk-7-jdk")
+        shell.run("dpkg -s openjdk-8-jdk")
         shell.run("dpkg -s pdsh")
     except:
         shell.run("sudo apt-get update --fix-missing")
-        shell.run("sudo apt-get install -y openjdk-7-jdk")
+        shell.run("sudo apt-get install -y software-properties-common")
+        shell.run("sudo add-apt-repository -y ppa:openjdk-r/ppa")
+        shell.run("sudo apt-get update")
+        shell.run("sudo apt-get install -y openjdk-8-jdk")
         shell.run("sudo apt-get install -y pdsh")
 
 def create_hadoop_dirs(shell):
@@ -135,11 +139,11 @@ def setup_hadoop_tar(shell):
     # We need the Hadoop tarball
     try:
         # The tarball is huge. Don't download if already present
-        shell.run("ls hadoop-2.6.0.tar.gz")
+        shell.run("ls hadoop-3.0.0-alpha1.tar.gz")
     except:
         # Download the tarball
         shell.run("wget %s" % HADOOP_TAR_PATH)
-        shell.run("tar -xvzf hadoop-2.6.0.tar.gz -C software")
+        shell.run("tar -xzf hadoop-3.0.0-alpha1.tar.gz -C software")
 
 def kill_old_instances(shell):
     # There are previously running instances of DataNode and NameNode if you
@@ -194,8 +198,8 @@ def run_TestDFSIO(shell, result_file="results.out", test_type="write",
     """
     Run TestDFSIO with various options. Assumes that start_all has been run
     """
-    dfsio_jar = ("software/hadoop-2.6.0/share/hadoop/mapreduce/"
-                 "hadoop-mapreduce-client-jobclient-2.6.0-tests.jar")
+    dfsio_jar = ("software/hadoop-3.0.0-alpha1/share/hadoop/mapreduce/"
+                 "hadoop-mapreduce-client-jobclient-3.0.0-alpha1-tests.jar")
     cmd = "yarn jar %s TestDFSIO" % dfsio_jar
     cmd += " -resFile %s" % result_file
     cmd += " -%s" % test_type
