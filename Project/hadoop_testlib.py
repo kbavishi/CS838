@@ -209,6 +209,11 @@ def run_TestDFSIO(shell, result_file="results.out", test_type="write",
     result = shell.run_hadoop_cmd(cmd)
     return result.output
 
+def save_output(output, filename):
+    """Saves the string output to a file in the `output` directory"""
+    path = os.path.join("output", filename)
+    open(path, "w").write(output)
+
 def setup_hadoop_testbase(namenode, resourcemgr, slave0, slave1, slave2):
     # Assume all entries are VMs and have ports embedded
     nn_hostname, nn_port = namenode.split(':')
