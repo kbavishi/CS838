@@ -193,7 +193,7 @@
 	</property>
 
 	<!--
-	     See this bug: https://issues.apache.org/jira/browse/MAPREDUCE-6704
+	     See the bug: https://issues.apache.org/jira/browse/MAPREDUCE-6704
 	     Need to explicitly provide the env var HADOOP_MAPRED_HOME.
 	     Otherwise we see errors of the kind:
 	     "Could not load or find the class MRAppMaster"
