@@ -181,14 +181,24 @@ def setup_run_sh(shell):
     copy_file(shell, "run.sh", "run.sh")
     # NOTE: We need to update the SPARK_MASTER_IP if we intend to use Spark
 
-def setup_hadoop_tar(shell):
-    """Downloads the Hadoop tarball and extracts it"""
+def setup_hadoop_tar(shell, master_shell=None):
+    """Downloads the Hadoop tarball and extracts it.
+    If this is a slave node and a master shell has been provided, we will try to
+    scp it over instead of downloading it"""
     try:
         # The tarball is huge. Don't download if already present
         shell.run("ls hadoop-3.0.0-alpha1.tar.gz")
     except:
         # Download the tarball since it doesn't exist
-        shell.run("wget %s" % HADOOP_TAR_PATH)
+        if master_shell:
+            # It will be faster to copy the tarball over from the master instead
+            # of downloading it. This will work only if passwordless login has
+            # been setup
+            ip_addr = shell.get_private_ip_addr()
+            scp_cmd = "scp hadoop-3.0.0-alpha1.tar.gz %s:~/" % ip_addr
+            master_shell.run(scp_cmd)
+        else:
+            shell.run("wget %s" % HADOOP_TAR_PATH)
         shell.run("tar -xzf hadoop-3.0.0-alpha1.tar.gz -C software")
 
 def kill_old_instances(shell):
@@ -202,7 +212,7 @@ def kill_old_instances(shell):
     except:
         pass
 
-def setup_hadoop(shell, master_ip, slave_ip_addrs):
+def setup_hadoop(shell, master_ip, slave_ip_addrs, master_shell=None):
     """Sets up everything that is needed to run Hadoop on the cluster"""
 
     # Kill any previously running daemons
@@ -226,7 +236,7 @@ def setup_hadoop(shell, master_ip, slave_ip_addrs):
     setup_run_sh(shell)
 
     # Download the Hadoop tarball if it doesn't exist
-    setup_hadoop_tar(shell)
+    setup_hadoop_tar(shell, master_shell=master_shell)
 
 def setup_passwordless(nn_shell, slave_shells):
     """Sets up passwordless access between master and slave nodes. Needed for
@@ -291,51 +301,51 @@ def save_output(output, filename):
     path = os.path.join("output", filename)
     open(path, "w").write(output)
 
-def setup_hadoop_testbase(namenode, resourcemgr, slave0, slave1, slave2):
+def setup_hadoop_testbase(namenode, resourcemgr, slaves):
     """Sets up everything needed for Hadoop to run on the cluster.
     Returns the master shell for running testcases"""
 
     # Assume all entries are VMs and have ports embedded
     # Create TestShell for the master
     nn_hostname, nn_port = namenode.split(':')
+    # NOTE: We are assuming that the nodes are on CloudLab for now
     nn_hostname += ".wisc.cloudlab.us"
     nn_shell = create_ssh_shell(nn_hostname, port=int(nn_port))
     master_ip = nn_shell.get_private_ip_addr()
 
     # Create TestShell for the resource manager
     rm_hostname, rm_port = resourcemgr.split(':')
+    # NOTE: We are assuming that the nodes are on CloudLab for now
     rm_hostname += ".wisc.cloudlab.us"
     rm_shell = create_ssh_shell(rm_hostname, port=int(rm_port))
 
     # NOTE: We are not running a master and slave on the same instance
     slave_ip_addrs = []
+    slave_shells = []
 
-    # Create TestShell for the first slave
-    slave0_hostname, slave0_port = slave0.split(':')
-    slave0_hostname += ".wisc.cloudlab.us"
-    slave0_shell = create_ssh_shell(slave0_hostname, port=int(slave0_port))
-    slave_ip_addrs += [slave0_shell.get_private_ip_addr()]
-
-    # Create TestShell for the second slave
-    slave1_hostname, slave1_port = slave1.split(':')
-    slave1_hostname += ".wisc.cloudlab.us"
-    slave1_shell = create_ssh_shell(slave1_hostname, port=int(slave1_port))
-    slave_ip_addrs += [slave1_shell.get_private_ip_addr()]
-
-    # Create TestShell for the third slave
-    slave2_hostname, slave2_port = slave2.split(':')
-    slave2_hostname += ".wisc.cloudlab.us"
-    slave2_shell = create_ssh_shell(slave2_hostname, port=int(slave2_port))
-    slave_ip_addrs += [slave2_shell.get_private_ip_addr()]
+    # Create TestShells for the slaves
+    assert isinstance(slaves, list)
+    for slave in slaves:
+        slave_hostname, slave_port = slave.split(':')
+        # NOTE: We are assuming that the nodes are on CloudLab for now
+        slave_hostname += ".wisc.cloudlab.us"
+        slave_shell = create_ssh_shell(slave_hostname, port=int(slave_port))
+        slave_ip_addrs += [slave_shell.get_private_ip_addr()]
+        slave_shells += [slave_shell]
 
     # Setup passwordless access between the master and each of the slave nodes
-    setup_passwordless(nn_shell, [slave0_shell, slave1_shell, slave2_shell])
+    setup_passwordless(nn_shell, slave_shells)
 
     # Setup everything needed for running Hadoop on the cluster
-    for shell in [nn_shell, rm_shell, slave0_shell,
-                  slave1_shell, slave2_shell]:
+    for shell in [nn_shell, rm_shell]:
         # XXX: Could be done in parallel
         setup_hadoop(shell, master_ip, slave_ip_addrs)
+
+    # Setup for slaves is a little different because they can use the master for
+    # scp'ing over certain tarballs
+    for shell in slave_shells:
+        # XXX: Could be done in parallel
+        setup_hadoop(shell, master_ip, slave_ip_addrs, master_shell=nn_shell)
 
     # Format the NameNode. This is needed only once
     format_namenode(nn_shell)
