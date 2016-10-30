@@ -7,12 +7,35 @@ if __name__ == '__main__':
         sys.exit(1)
 
     nn, rm, slave0, slave1, slave2 = sys.argv[1:]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slave0, slave1, slave2)
+    slaves = [slave0, slave1, slave2]
+    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)
 
     nn_shell.run_hadoop_cmd("start_all")
-    output = ""
-    output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write")
-    output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read")
-    nn_shell.run_hadoop_cmd("stop_all")
 
-    hadoop_testlib.save_output(output, "simple_test.txt")
+    # Run our TestDFSIO tests. Run at least 10 times to average out any noise in
+    # measurements
+    output = ""
+    for _ in xrange(10):
+        # Run tests for both large and small files.
+        # According to the HDFS scalability paper by Shvachko, the average file
+        # size in Yahoo!  clusters is 1.5 blocks. So for our definition of
+        # "small files", we pick a size of 1 block ie. 64 MB. Whereas for large
+        # files, we pick a size of 1 GB
+
+        # Tests for small files
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+                                               number_of_files=1,
+                                               file_size='64MB')
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
+                                               number_of_files=1,
+                                               file_size='64MB')
+
+        # Tests for big files
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+                                               number_of_files=1,
+                                               file_size='1GB')
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
+                                               number_of_files=1,
+                                               file_size='1GB')
+
+    hadoop_testlib.save_output(output, "hdfs_replica_3.txt")
