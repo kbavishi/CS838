@@ -8,7 +8,7 @@ if __name__ == '__main__':
 
     nn, rm, slave0, slave1, slave2 = sys.argv[1:]
     slaves = [slave0, slave1, slave2]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)
+    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)[0]
 
     hadoop_testlib.start_all(nn_shell)
 

@@ -98,7 +98,7 @@ class TestShell(spur.SshShell):
         # We know that CloudLab picks IP addrs of the form 10.x.x.x
         # Hack to take advantage of that
         for ip_addr in ip_addrs:
-            if ip_addr.startswith('10.'):
+            if ip_addr.startswith('10.10'):
                 private_ip_addrs += [ip_addr]
 
         if not private_ip_addrs:
@@ -219,7 +219,7 @@ def setup_hadoop_tar(shell, master_shell=None, allow_public_ip=False):
         # Download the tarball since it doesn't exist
         ip_addr = shell.get_private_ip_addr(allow_public_ip=allow_public_ip)
 
-        if master_shell and ip_addr.startswith("10."):
+        if master_shell and ip_addr.startswith("10.10"):
             # It will be faster to copy the tarball over from the master instead
             # of downloading it. This will work only if passwordless login has
             # been setup and if it is a non-GDA slave.
@@ -411,7 +411,26 @@ def setup_hadoop_testbase(namenode, resourcemgr, slaves,
     # is run, "start all" has to be called
     stop_all(nn_shell, allow_error=True)
 
-    return nn_shell
+    return nn_shell, rm_shell, slave_shells
+
+def set_ec_policy(shell, path, policy):
+    """Sets an erasure code policy for the given path. Allowed values for EC
+    policy are:
+    1. RS-DEFAULT-3-2-64k
+    2. RS-DEFAULT-6-3-64k
+    3. RS-LEGACY-3-2-64k
+    """
+    # Check if EC policy has already been set. We get an error otherwise
+    if policy in get_ec_policy(shell, path):
+        return
+
+    ec_cmd = "hdfs erasurecode -setPolicy -p %s %s" % (policy, path)
+    shell.run_hadoop_cmd(ec_cmd)
+
+def get_ec_policy(shell, path):
+    """Gets the current erasure code policy for the given path."""
+    ec_cmd = "hdfs erasurecode -getPolicy %s" % path
+    return shell.run_hadoop_cmd(ec_cmd).output
 
 def check_datanode_health(shell, wait_time=None):
     """Checks if the DataNode processes are running on the slave nodes."""
@@ -426,6 +445,20 @@ def check_datanode_health(shell, wait_time=None):
             shell.run("ssh %s pgrep -f DataNode" % ip_addr)
         except:
             assert False, "DataNode not running on %s" % ip_addr
+
+def set_slaves_hostnames(slave_shells):
+    """Sets the expected hostnames for slaves in the same cluster. This is
+    somehow needed for our GDA tests."""
+    for slave_shell in slave_shells:
+        ip_addr = slave_shell.get_private_ip_addr(allow_public_ip=True)
+        if is_public_addr(ip_addr):
+            continue
+
+        # Fix hostname
+        hostname = slave_shell.run("hostname").output.strip()
+        # Drop the domain name
+        hostname = hostname.split(".")[0]
+        slave_shell.run("sudo hostname %s" % hostname)
 
 def start_all(shell):
     """Starts all HDFS daemons using the run.sh script on the namenode. Also

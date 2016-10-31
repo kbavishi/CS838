@@ -13,9 +13,15 @@ if __name__ == '__main__':
     # the striped blocks. Without this, HDFS complains
     nn, rm, slave0, slave1, slave2, slave3, slave4 = sys.argv[1:]
     slaves = [slave0, slave1, slave2, slave3, slave4]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)[0]
+    nn_shell, _, slave_shells = \
+        hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves,
+                                             allow_public_ip=True)
 
     hadoop_testlib.start_all(nn_shell)
+
+    # XXX For some reason the hostname needs to be fixed for slaves running on
+    # the same cluster
+    hadoop_testlib.set_slaves_hostnames(slave_shells)
 
     # The output of TestDFSIO is written to /benchmarks in HDFS. Change the
     # storage policy for that directory. 
@@ -55,4 +61,4 @@ if __name__ == '__main__':
     # XXX Seems like you can't unset a policy back to cold replicas
 
     # Dump the output to a txt file so that it can be useful later
-    hadoop_testlib.save_output(output, "erasure_coding_RS_3_2.txt")
+    hadoop_testlib.save_output(output, "gda_erasure_coding_RS_3_2.txt")

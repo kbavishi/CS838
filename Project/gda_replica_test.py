@@ -12,10 +12,15 @@ if __name__ == '__main__':
 
     nn, rm, slave0, slave1, slave2 = sys.argv[1:]
     slaves = [slave0, slave1, slave2]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves,
-                                                    allow_public_ip=True)
+    nn_shell, _, slave_shells = \
+        hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves,
+                                             allow_public_ip=True)
 
     hadoop_testlib.start_all(nn_shell)
+
+    # XXX For some reason the hostname needs to be fixed for slaves running on
+    # the same cluster
+    hadoop_testlib.set_slaves_hostnames(slave_shells)
 
     # Run our TestDFSIO tests. Run at least 10 times to average out any noise in
     # measurements
