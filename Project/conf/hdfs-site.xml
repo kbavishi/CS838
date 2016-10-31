@@ -63,4 +63,13 @@
   <value>134217728</value>
 </property>
 
+<!-- This is needed for the NN to listen to connections on both the private
+     and public IP addresses. Without this, the DNs on another GD cluster 
+     are unable to connect to the NN
+-->
+<property>
+	<name>dfs.namenode.rpc-bind-host</name>
+	<value>0.0.0.0</value>
+</property>
+
 </configuration>

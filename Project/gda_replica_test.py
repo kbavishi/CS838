@@ -1,6 +1,10 @@
 import sys
 import hadoop_testlib
 
+# XXX kbavishi - Extra things I had to do get this to work:
+# 1. ifconfig eth1 down on GDA slave
+# 2. Fix hostnames on both non-GDA slaves. This was causing the RM to connect to
+# weird hostnames
 if __name__ == '__main__':
     if len(sys.argv) != 6:
         print "Please provide all 5 VM hostname:port values"
@@ -8,7 +12,8 @@ if __name__ == '__main__':
 
     nn, rm, slave0, slave1, slave2 = sys.argv[1:]
     slaves = [slave0, slave1, slave2]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)
+    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves,
+                                                    allow_public_ip=True)
 
     hadoop_testlib.start_all(nn_shell)
 
@@ -40,4 +45,4 @@ if __name__ == '__main__':
 
     hadoop_testlib.stop_all(nn_shell)
 
-    hadoop_testlib.save_output(output, "hdfs_replica_3.txt")
+    hadoop_testlib.save_output(output, "gda_hdfs_replica_3.txt")
