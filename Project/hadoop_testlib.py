@@ -267,6 +267,9 @@ def setup_hadoop(shell, master_ip, master_shell=None, allow_public_ip=False):
     # Copy over the run.sh script for running daemons
     setup_run_sh(shell)
 
+    # Copy over rack awareness script 
+    setup_rack_awareness(shell)
+
     # Download the Hadoop tarball if it doesn't exist
     setup_hadoop_tar(shell, master_shell=master_shell,
                      allow_public_ip=allow_public_ip)
@@ -298,6 +301,21 @@ def setup_passwordless(nn_shell, slave_shells, allow_public_ip=False):
             # Creates issues otherwise
             nn_shell.run("ssh-keyscan -H %s >> .ssh/known_hosts" % ip_addr)
 
+def setup_rack_awareness(shell):
+    """Copies over script which will provide rack awareness to HDFS."""
+    # Need to install dependencies: pip and netaddr
+    try:
+        shell.run("dpkg -s python-pip")
+        shell.run("pip list | grep pip")
+    except:
+        cmds = ["sudo apt-get install -y python-pip",
+                "sudo pip install netaddr"]
+        for cmd in cmds:
+            shell.run(cmd)
+
+    copy_file(shell, "rack_awareness.py", "rack_awareness.py")
+    shell.run("chmod +x rack_awareness.py")
+
 def format_namenode(shell):
     """Formats HDFS namenode. I believe this is for setting the namespace ID on
     the NameNode which is then used in the handshakes between DataNodes and
@@ -311,6 +329,30 @@ def format_namenode(shell):
         # Create indicator file. Its presence will be used to ensure that we
         # don't end up formatting again.
         shell.run("touch formatting_done")
+
+def get_wan_netstats(shell):
+    """
+    Appends WAN usage for slave nodes that are running on another GD cluster.
+    """
+    wan_output = {}
+    slave_ip_addrs = shell.run("cat instances").output.strip().split("\n")
+    for ip_addr in slave_ip_addrs:
+        if not is_public_addr(ip_addr):
+            # Don't need netstats for nodes on the same cluster
+            continue
+
+        # face |bytes    packets errs drop fifo frame compressed multicast|bytes
+        # packets errs drop fifo colls carrier compressed
+        output = shell.run("ssh %s cat /proc/net/dev" % ip_addr).output
+        for line in output.split("\n"):
+            line = line.strip()
+            # We assume that public IP addr will always be on eth0
+            if line.startswith("eth0"):
+                stats = line.split()
+                # Fetch rxBytes, txBytes
+                wan_output[ip_addr] = (int(stats[1]), int(stats[9]))
+
+    return wan_output
 
 def run_TestDFSIO(shell, result_file="results.out", test_type="write",
                   number_of_files=1, file_size='1MB'):
@@ -327,12 +369,41 @@ def run_TestDFSIO(shell, result_file="results.out", test_type="write",
     cmd += " -nrFiles %s" % number_of_files
     cmd += " -size %s" % file_size
 
-    result = shell.run_hadoop_cmd(cmd)
+    wan_usage_before = get_wan_netstats(shell)
+    output = shell.run_hadoop_cmd(cmd).output
+    wan_usage_after = get_wan_netstats(shell)
+
+    # Append WAN usage before for slaves running in another GD cluster
+    if wan_usage_before:
+        for ip_addr in wan_usage_before:
+            rxb_before, txb_before = wan_usage_before[ip_addr]
+            rxb_after, txb_after = wan_usage_after[ip_addr]
+            output += "WAN RX for %s: %d bytes\n" % (ip_addr,
+                                                     rxb_after - rxb_before)
+            output += "WAN TX for %s: %d bytes\n" % (ip_addr,
+                                                     txb_after - txb_before)
+            print "WAN Usage for %s: %s, %s\n" % (ip_addr,
+                                                  rxb_after - rxb_before,
+                                                  txb_after - txb_before)
 
     # Check that DataNode processes have not crashed because of the test
     check_datanode_health(shell)
 
-    return result.output
+    return output
+
+def cleanup_TestDFSIO(shell):
+    """Cleans up the /benchmarks directory on HDFS so that subsequent testcases
+    can run safely."""
+    shell.run_hadoop_cmd("hadoop fs -rm -f -r /benchmarks")
+
+    # Wait for it to actually disappear. Otherwise if we shut down HDFS daemons
+    # immediately, it reappears
+    while True:
+        try:
+            shell.run_hadoop_cmd("hadoop fs -ls /benchmarks")
+        except:
+            # We hit an exception which it means it finally has been deleted
+            break
 
 def save_output(output, filename):
     """Saves the string output to a file in the `output` directory"""
@@ -342,11 +413,20 @@ def save_output(output, filename):
 def parse_host(host_str):
     """Parses strings of the format <hostname:port> and returns the necessary
     fqdn and port"""
-    host, port = host_str.split(':')
+    values = host_str.split(':')
+    if len(values) == 1:
+        # If port hasn't been provided, assume the default SSH port 22
+        host, port = values[0], 22
+    elif len(values) == 2:
+        host, port = values
+    else:
+        assert False, "Unparseable string: %s" % host_str
+
+    # If domain name is not provided, assume it is a node on Wisc CloudLab
     if "cloudlab" not in host:
-        # If domain name is not provided, assume it is a node on Wisc CloudLab
         domain_name = ".wisc.cloudlab.us"
         host += domain_name
+
     return host, port
 
 def setup_hadoop_testbase(namenode, resourcemgr, slaves,
@@ -437,14 +517,21 @@ def check_datanode_health(shell, wait_time=None):
     if wait_time:
         time.sleep(wait_time)
 
+    dn_topo_output = shell.run_hadoop_cmd("hadoop dfsadmin -printTopology").output
     slave_ip_addrs = shell.run("cat instances").output.strip().split("\n")
     for ip_addr in slave_ip_addrs:
         if not ip_addr:
             continue
+        # Check whether the DataNode process is running on the slave
         try:
             shell.run("ssh %s pgrep -f DataNode" % ip_addr)
         except:
             assert False, "DataNode not running on %s" % ip_addr
+
+        # Check whether the NameNode is receiving heartbeats from the DataNode
+        assert ip_addr in dn_topo_output, \
+               "NN is not receiving heartbeats from DataNode %s. "\
+               "Please check datanode logs."
 
 def set_slaves_hostnames(slave_shells):
     """Sets the expected hostnames for slaves in the same cluster. This is
