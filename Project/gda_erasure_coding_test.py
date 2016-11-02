@@ -53,6 +53,8 @@ if __name__ == '__main__':
                                                number_of_files=1,
                                                file_size='1GB')
 
+        # After each iteration, just save the results
+        hadoop_testlib.save_output(output, "gda_erasure_coding_RS_3_2.txt")
 
     hadoop_testlib.cleanup_TestDFSIO(nn_shell)
     hadoop_testlib.stop_all(nn_shell)
