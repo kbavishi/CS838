@@ -18,10 +18,6 @@ if __name__ == '__main__':
 
     hadoop_testlib.start_all(nn_shell)
 
-    # XXX For some reason the hostname needs to be fixed for slaves running on
-    # the same cluster
-    hadoop_testlib.set_slaves_hostnames(slave_shells)
-
     # Run our TestDFSIO tests. Run at least 10 times to average out any noise in
     # measurements
     output = ""
@@ -34,18 +30,18 @@ if __name__ == '__main__':
 
         # Tests for small files
         output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
-                                               number_of_files=3,
+                                               number_of_files=1,
                                                file_size='64MB')
         output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
-                                               number_of_files=3,
+                                               number_of_files=1,
                                                file_size='64MB')
 
         # Tests for big files
         output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
-                                               number_of_files=3,
+                                               number_of_files=1,
                                                file_size='1GB')
         output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
-                                               number_of_files=3,
+                                               number_of_files=1,
                                                file_size='1GB')
 
     hadoop_testlib.stop_all(nn_shell)

@@ -19,10 +19,6 @@ if __name__ == '__main__':
 
     hadoop_testlib.start_all(nn_shell)
 
-    # XXX For some reason the hostname needs to be fixed for slaves running on
-    # the same cluster
-    hadoop_testlib.set_slaves_hostnames(slave_shells)
-
     # The output of TestDFSIO is written to /benchmarks in HDFS. Change the
     # storage policy for that directory. 
     path = "/benchmarks"

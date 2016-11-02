@@ -72,4 +72,21 @@
 	<value>0.0.0.0</value>
 </property>
 
+<!-- The NN basically does a reverse DNS to check if the DN IP
+     is a recognized one. Since our scripts don't touch the /etc/hosts file,
+     this results in the DN erroring out in the handshake. Disable the check
+-->
+<property>
+	<name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+	<value>false</value>
+</property>
+
+<!-- The default threshold is 30 seconds, which may be too small for GDA.
+     Use a higher value so that warnings get suppressed.
+-->
+<property>
+	<name>dfs.client.slow.io.warning.threshold.ms</name>
+	<value>120000</value>
+</property>
+
 </configuration>
