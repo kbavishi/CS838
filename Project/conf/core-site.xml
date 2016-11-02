@@ -53,4 +53,13 @@
   <value>kbavishi</value>
 </property>
 
+<!-- The rack awareness script is extremely important for GDA tests to get sane
+     results. Otherwise HDFS ends up scheduling the first Map task on the
+     remote node and things go south from there.
+-->
+<property>
+	<name>net.topology.script.file.name</name>
+	<value>/users/kbavishi/rack_awareness.py</value>
+</property>
+
 </configuration>
