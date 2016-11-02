@@ -53,6 +53,8 @@ if __name__ == '__main__':
                                                number_of_files=1,
                                                file_size='1GB')
 
+
+    hadoop_testlib.cleanup_TestDFSIO(nn_shell)
     hadoop_testlib.stop_all(nn_shell)
     # XXX Seems like you can't unset a policy back to cold replicas
 
