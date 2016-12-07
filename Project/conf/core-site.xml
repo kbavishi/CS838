@@ -62,4 +62,25 @@
 	<value>/users/kbavishi/rack_awareness.py</value>
 </property>
 
+<property>
+  <name>io.erasurecode.codec.rs-default.rawcoder</name>
+  <value>org.apache.hadoop.io.erasurecode.rawcoder.NativeRSRawErasureCoderFactory</value>
+</property>
+
+<property>
+  <name>io.erasurecode.codec.xor.rawcoder</name>
+  <value>org.apache.hadoop.io.erasurecode.rawcoder.NativeXORRawErasureCoderFactory</value>
+</property>
+
+<property>
+  <name>net.link.default.cost</name>
+  <value>1</value>
+</property>
+
+<property>
+  <name>net.link.script.file.name</name>
+  <value>LINK_AWARENESS</value>
+</property>
+
+
 </configuration>

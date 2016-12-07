@@ -90,5 +90,9 @@
 	  <name>mapreduce.admin.user.env</name>
 	  <value>HADOOP_MAPRED_HOME=$HADOOP_COMMON_HOME</value>
   </property>
+  <property>
+	  <name>mapred.child.env</name>
+	  <value>JAVA_LIBRARY_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/lib/native:$LD_LIBRARY_PATH</value>
+  </property>
 
 </configuration>

@@ -89,4 +89,19 @@
 	<value>120000</value>
 </property>
 
+<property>
+	<name>dfs.datanode.ec.reconstruction.stripedread.timeout.millis</name>
+	<value>120000</value>
+</property>
+
+<property>
+  <name>dfs.block.replicator.classname</name>
+  <value>org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicyRackFaultTolerantGDA</value>
+</property>
+
+<property>
+  <name>dfs.block.placement.ec.classname</name>
+  <value>org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicyRackFaultTolerantGDA</value>
+</property>
+
 </configuration>

@@ -1,4 +1,5 @@
 import os
+import netaddr
 import shlex
 import shutil
 import signal
@@ -9,6 +10,8 @@ from termcolor import cprint
 
 USERNAME = "kbavishi"
 HADOOP_TAR_PATH = "http://apache.cs.utah.edu/hadoop/common/hadoop-3.0.0-alpha1/hadoop-3.0.0-alpha1.tar.gz"
+# This is our own tarball with ISA-L support compiled
+HADOOP_TAR_PATH = "https://www.dropbox.com/s/txe6k3gin1uqc80/hadoop-3.0.0-alpha1.tar.gz"
 
 # Issues that may still exist
 # 1. Hosts file may be an issue
@@ -188,7 +191,17 @@ def setup_instances_file(shell, slave_ip_addrs):
         shell.run("echo %s >> instances" % slave_ip)
     shell.run("cat instances")
 
-def setup_conf_tar(shell, master_ip):
+def setup_intel_ISA_L(shell):
+    try:
+        shell.run("ls isa-l")
+        # Probably already installed. Take a gamble and return
+    except:
+        shell.run("sudo apt-get -y install yasm")
+        shell.run("git clone https://github.com/01org/isa-l.git")
+        shell.run("cd isa-l; ./autogen.sh; ./configure; make; sudo make install",
+                  use_bash=True)
+
+def setup_conf_tar(shell, master_ip, link_awareness=False):
     """Copies over the XML conf files to the master"""
 
     # Create a tarball of conf files available locally and send it over.
@@ -202,11 +215,26 @@ def setup_conf_tar(shell, master_ip):
             continue
         filepath = os.path.join("conf", filename)
         shell.run("sed -i -e 's/MASTER_IP/%s/g' %s" % (master_ip, filepath))
+        if link_awareness:
+            shell.run("sed -i -e "\
+            "'s/LINK_AWARENESS/\/users\/kbavishi\/link_awareness.py/g' %s" %
+                      filepath)
 
 def setup_run_sh(shell):
     """Copies over the run.sh script needed for running Hadoop daemons"""
     copy_file(shell, "run.sh", "run.sh")
     # NOTE: We need to update the SPARK_MASTER_IP if we intend to use Spark
+
+def copy_native_libraries(shell):
+    cmd = "sudo cp software/hadoop-3.0.0-alpha1/lib/native/* /usr/lib/"
+    try:
+        output = shell.run(cmd, use_bash=True)
+    except spur.RunProcessError, e:
+        if "omitting directory" in e.message:
+            # This is a known exception
+            pass
+        else:
+            raise e
 
 def setup_hadoop_tar(shell, master_shell=None, allow_public_ip=False):
     """Downloads the Hadoop tarball and extracts it.
@@ -229,6 +257,10 @@ def setup_hadoop_tar(shell, master_shell=None, allow_public_ip=False):
             shell.run("wget %s" % HADOOP_TAR_PATH)
         shell.run("tar -xzf hadoop-3.0.0-alpha1.tar.gz -C software")
 
+        # This needs to be done for some reason because it can never find native
+        # libraries
+        copy_native_libraries(shell)
+
 def kill_old_instances(shell):
     """Kill any previously running Hadoop daemons"""
     # There are previously running instances of DataNode and NameNode if you
@@ -240,7 +272,9 @@ def kill_old_instances(shell):
     except:
         pass
 
-def setup_hadoop(shell, master_ip, master_shell=None, allow_public_ip=False):
+def setup_hadoop(shell, master_ip, master_shell=None,
+                 allow_public_ip=False, link_awareness=False,
+                 gd_rack=None):
     """Sets up everything that is needed to run Hadoop on the cluster"""
 
     # Kill any previously running daemons
@@ -262,13 +296,20 @@ def setup_hadoop(shell, master_ip, master_shell=None, allow_public_ip=False):
         assert master_shell, "Master shell should have been provided"
         master_ip = master_shell.get_public_ip_addr()
 
-    setup_conf_tar(shell, master_ip)
+    if link_awareness:
+        # Copy over link awareness script
+        setup_link_awareness(shell, gd_rack)
+
+    setup_conf_tar(shell, master_ip, link_awareness)
 
     # Copy over the run.sh script for running daemons
     setup_run_sh(shell)
 
     # Copy over rack awareness script 
     setup_rack_awareness(shell)
+
+    # Setup Intel ISA-L libraries
+    setup_intel_ISA_L(shell)
 
     # Download the Hadoop tarball if it doesn't exist
     setup_hadoop_tar(shell, master_shell=master_shell,
@@ -315,6 +356,13 @@ def setup_rack_awareness(shell):
 
     copy_file(shell, "rack_awareness.py", "rack_awareness.py")
     shell.run("chmod +x rack_awareness.py")
+
+def setup_link_awareness(shell, gd_rack):
+    """Copies over script which will bring link cost awareness to HDFS."""
+    copy_file(shell, "link_awareness.py", "link_awareness.py")
+    shell.run("chmod +x link_awareness.py")
+    # The only way I could think of to not hardcode GD rackname in the script
+    shell.run("sed -i -e 's/GD_RACK/\%s/g' link_awareness.py" % gd_rack)
 
 def format_namenode(shell):
     """Formats HDFS namenode. I believe this is for setting the namespace ID on
@@ -430,7 +478,7 @@ def parse_host(host_str):
     return host, port
 
 def setup_hadoop_testbase(namenode, resourcemgr, slaves,
-                          allow_public_ip=False):
+                          allow_public_ip=False, link_awareness=False):
     """Sets up everything needed for Hadoop to run on the cluster.
     Parameters:
 
@@ -438,6 +486,8 @@ def setup_hadoop_testbase(namenode, resourcemgr, slaves,
     @resourcemgr: String of the form <hostname:port> containing RM info
     @slaves: List of string of the form <hostname:port> containing slave info
     @allow_public_ip: Set to True if you are running Hadoop on a GDA setting
+    @link_awareness: Set to True if you want the link awareness script to be
+    installed.
 
     Returns the master shell for running testcases"""
 
@@ -472,17 +522,33 @@ def setup_hadoop_testbase(namenode, resourcemgr, slaves,
     # for running daemons on slave nodes
     setup_instances_file(nn_shell, slave_ip_addrs)
 
+    gd_rack = None
+    if link_awareness:
+        # Need to know the rack name for the node in another DC.
+        for ip in slave_ip_addrs:
+            if ip.startswith("10.10"):
+                continue
+            netmask = '255.255.255.0'
+            address = '{0}/{1}'.format(ip, netmask)
+            network_address = netaddr.IPNetwork(address).network
+            gd_rack = '/{0}'.format(network_address)
+
+        assert gd_rack, "Could not find rackname of node in another DC"
+
     # Setup everything needed for running Hadoop on the cluster
     # XXX Ignore RM for now
     for shell in [nn_shell,]:
-        setup_hadoop(shell, master_ip)
+        setup_hadoop(shell, master_ip, link_awareness=link_awareness,
+                     gd_rack=gd_rack)
 
     # Setup for slaves is a little different because they can use the master for
     # scp'ing over certain tarballs
     for shell in slave_shells:
         # XXX: Could be done in parallel
         setup_hadoop(shell, master_ip, master_shell=nn_shell,
-                     allow_public_ip=allow_public_ip)
+                     allow_public_ip=allow_public_ip,
+                     link_awareness=link_awareness,
+                     gd_rack=gd_rack)
 
     # Format the NameNode. This is needed only once
     format_namenode(nn_shell)

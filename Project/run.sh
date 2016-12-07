@@ -47,7 +47,7 @@ export HADOOP_CLASSPATH=$HADOOP_HOME:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce:
 export HADOOP_HEAPSIZE=10240
 
 export PATH=/users/kbavishi/software/hadoop-${COMMON_VERSION}/bin:/users/kbavishi/software/hadoop-${COMMON_VERSION}/sbin:$HIVE_HOME/bin:$PATH
-export LD_LIBRARY_PATH=${HADOOP_COMMON_HOME}/share/hadoop/common/lib/native/:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${HADOOP_COMMON_HOME}/lib/native/:${LD_LIBRARY_PATH}
 export JAVA_LIBRARY_PATH=${LD_LIBRARY_PATH}
 
 
