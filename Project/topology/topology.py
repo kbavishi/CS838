@@ -13,6 +13,17 @@ pc.defineParameter( "raw", "Use physical nodes",
 pc.defineParameter( "mem", "Memory per VM",
 		    portal.ParameterType.INTEGER, 256 )
 
+longDesc = "A specific hardware type to use for each node.  Cloudlab clusters "
+"all have machines of specific types.  When you set this field to a value that "
+"is a specific hardware type, you will only be able to instantiate this profile "
+"on clusters with machines of that type.  If unset, when you instantiate the "
+"profile, the resulting experiment may have machines of any available type "
+"allocated."
+
+pc.defineParameter("osNodeType", "Hardware type of all nodes",
+                   portal.ParameterType.NODETYPE, "",
+                   longDescription=longDesc)
+
 params = pc.bindParameters()
 
 #IMAGE = "https://www.apt.emulab.net/image_metadata.php?uuid=b60fe4ec-5d64-11e5-9efe-45d11788de58"
