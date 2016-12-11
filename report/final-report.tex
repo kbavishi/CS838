@@ -200,7 +200,58 @@ This method of selecting the datanodes for writes has a direct affect on the WAN
 
 \section{Experiments \& Results}
 
-Our experiments and results for this project are divided into two parts. In the first part we describe and explain the the benchmarking experiments we performed to measure the degradation of performance of HDFS and HDFS-EC in GD settings. In the second part we discuss the results of our WAN aware HDFS-EC. 
+Our experiments and results for this project are divided into two parts. In the first part we describe and explain the the benchmarking experiments we performed to measure the degradation of performance of HDFS and HDFS-EC in GD settings. In the second part we discuss the results of WAN aware HDFS-EC that we implemented.
+\subsection{Benchmarking Results}
+We run DFSIO for four different kinds of measurements. Small file reads, small file writes, large file reads and large file writes and report the results for each kind of test case. Running the same tests for two different size of  files gives us additional insights on how the read and writes of geo distributed HDFS and HDFS-EC are affected by the file size. We discuss and explain all of our observations below. 
+
+For our HDFS performance measurements we run the TestDFSIO benchmark on a Hadoop cluster and measure HDFS read / write throughput of the system. In case of geo-distributed cluster we also measure the total WAN usage. 
+
+\begin{table}
+\centering
+\caption{Benchmarking Read/Write Throughput (MB/s)}\label{tput:table}
+\begin{tabular}{|c|c|c|c|l|} \hline
+Test&Replica&Replica-GD&EC&EC-GD\\ \hline
+Small file reads&456.357&456.578&322.664&84.186\\ \hline
+Large file reads&748.012&739.626&635.916&174.667\\ \hline
+Small file writes&145.071&3.008&116.404&8.523\\ \hline
+Large file writes&186.138&3.03&150.258 & 9.05 \\
+
+\hline\end{tabular}
+\end{table}
+\begin{table}
+\centering
+\label{wan:table}
+\begin{tabular}{|c|c|c|l|} \hline
+Test&Replica-GD&EC-GD\\ \hline
+Small file reads&2.428&26.058\\ \hline
+Large file reads&3.221&381.518\\ \hline
+Small file writes&74.135&26.244\\ \hline
+Large file writes&1150.637&385.063 \\
+
+\hline\end{tabular}
+\caption{WAN usage (MB)}
+\end{table}
+
+\textbf{Read/Write Throughput} \\
+
+Table \ref{tput:table} shows the read and write throughput obtained in all the four settings. EC reads worse than replica reads - The read throughput in HDFS-replica is significantly better because in order to read one HDFS block, we can simply fetch the data-local block. However in HDFS-EC with the Reed-Solomon (3,2) encoding scheme, we have to fetch 3 data stripes from different locations in order to read one block (note that a data stripe unit is not equal to an HDFS block). 
+EC reads impacted more by GD clusters - The impact of running in geo-distributed clusters is higher on reads in HDFS-EC than on HDFS-replica. This is because in HDFS-EC, all the data stripes (including the one in another DC) have to be fetched to read one block. In HDFS-replica, the reads avoid using the WAN link altogether by picking the closest replica in the same DC.
+EC writes worse than replica writes - This is because the parity stripes have to be computed in HDFS-EC before it can be written to the disk and therefore takes more time.
+Replica writes impacted more in GD clusters - The impact of running in geo-distributed clusters is higher on writes in HDFS-replica than on HDFS-EC. \\
+
+\textbf{WAN Usage} \\
+
+Table \ref{wan:table} shows the results of WAN usage for all HDFS-EC and HDFS replcation for all the four test cases. 
+
+The following observations can be made:
+\textbf{Less WAN usage in EC writes:} Erasure coding clearly uses far less WAN bandwidth than the replica scheme. This difference can be explained by two factors:
+Storage efficiency - The amount of data stored in HDFS-replica is more than in HDFS-EC. For every X bytes of data, HDFS-replica stores another 2X bytes compared to HDFS-EC which only stores 0.5X extra bytes.
+
+
+Mismatching testcases - Since the proportion of datanodes in another DC is higher for the HDFS-replica testcase (1/3) compared to that for HDFS-EC (1/5), the amount of data that needs to flow through the WAN link is also lower. To be fair, even if we had say 2 of the 5 datanodes in another DC in HDFS-EC, we expect the WAN usage to be less for EC. The reason for this configuration is explained in the system set up section. 
+
+
+\textbf{More WAN usage in EC reads} This is because the local replicas are picked in the replica scheme. Hence the WAN usage is very small.  However, in EC some cells of all the logical file blocks are in the Clemson cluster because of the round robin placement of cells across the datanodes. As a result, every read involves reading some cells from the remote node hence the WAN usage is much higher. 
 
 \section{Discussion}
 
