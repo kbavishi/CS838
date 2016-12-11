@@ -1,0 +1,32 @@
+digraph ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1 {
+graph [ label="ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1", fontsize=24, fontname=Helvetica];
+node [fontsize=12, fontname=Helvetica];
+edge [fontsize=9, fontcolor=blue, fontname=Arial];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_3" [ label = "Reducer_3[ReduceTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_3" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_4" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_4_out_Reducer_4" [ label = "Reducer_4[out_Reducer_4]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_4" [ label = "Reducer_4[ReduceTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_4" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_4_out_Reducer_4" [ label = "Output [outputClass=MROutput,\n committer=]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_8_d2" [ label = "Map_8[d2]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_8_d2" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_8" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_7_d1" [ label = "Map_7[d1]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_7_d1" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_7" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_8" [ label = "Map_8[MapTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_8" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "Reducer_2[ReduceTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_3" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_6_store" [ label = "Map_6[store]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_6_store" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_6" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_6" [ label = "Map_6[MapTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_6" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_5_store_returns" [ label = "Map_5[store_returns]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_5_store_returns" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_5" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_7" [ label = "Map_7[MapTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_7" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_5" [ label = "Map_5[MapTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_5" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_1" [ label = "Map_1[MapTezProcessor]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_1" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Reducer_2" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_1_store_sales" [ label = "Map_1[store_sales]", shape = "box" ];
+"ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_1_store_sales" -> "ubuntu_20160926003748_f337d4d5_8245_45fa_b5bf_3dc215793372_1.Map_1" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+}

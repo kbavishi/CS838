@@ -1,0 +1,45 @@
+digraph {
+
+  M_217 [label="M (82)", shape="box", fillcolor="green", style="filled"];
+  R_217 [label="R (86)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_217 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_218 [label="M (4)", shape="box", fillcolor="green", style="filled"];
+  HDFS_218 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_219 [label="M (5)", shape="box", fillcolor="green", style="filled"];
+  HDFS_219 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_220 [label="M (6)", shape="box", fillcolor="green", style="filled"];
+  HDFS_220 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_221 [label="M (2)", shape="box", fillcolor="green", style="filled"];
+  R_221 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_221 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+ 
+  M_222 [label="M (1)", shape="box", fillcolor="green", style="filled"];
+  R_222 [label="R (1)", shape="box", fillcolor="orange", style="filled"];
+  HDFS_222 [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+  M_217 -> R_217;
+  R_217 -> HDFS_217;
+  HDFS_217 -> M_218;
+
+  M_218 -> HDFS_218;
+  HDFS_218 -> M_219;
+
+  M_219 -> HDFS_219;
+  HDFS_219 -> M_220;
+
+  M_220 -> HDFS_220;
+  HDFS_220 -> M_221;
+
+  M_221 -> R_221;
+  R_221 -> HDFS_221;
+  // XXX Need to find out if this is a bug
+  // Not a bug. An actual dependency exists
+  HDFS_221 -> M_222;
+
+  M_222 -> R_222;
+  R_222 -> HDFS_222;
+}

@@ -1,0 +1,56 @@
+digraph {
+graph [ fontsize=24, fontname=Helvetica];
+node [fontsize=12, fontname=Helvetica];
+edge [fontsize=9, fontcolor=blue, fontname=Arial];
+
+"Map_8_out_Map_8" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_8" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_1" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Reducer_4" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_5_date_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_7_date_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_3" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_10_item" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_4_out_Reducer_4" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_7" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_11_time_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_1_out_Map_1" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_6_out_Map_6" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_6" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_6_catalog_sales" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_9" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_10" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_1_web_sales" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_5" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_8_store_sales" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_11" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_9_date_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"HDFS" [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+"Map_8" -> "Map_8_out_Map_8";
+"Map_8" -> "Reducer_3";
+"Map_1" -> "Map_1_out_Map_1";
+"Map_1" -> "Reducer_3";
+"Reducer_4" -> "Reducer_4_out_Reducer_4";
+"Map_5_date_dim" -> "Map_5";
+"Map_7_date_dim" -> "Map_7";
+"Reducer_3" -> "Reducer_4";
+"Map_10_item" -> "Map_10";
+"Map_7" -> "Map_6";
+"Map_11_time_dim" -> "Map_11";
+"Map_6" -> "Map_6_out_Map_6";
+"Map_6" -> "Reducer_3";
+"Map_6_catalog_sales" -> "Map_6";
+"Map_9" -> "Map_8";
+"Map_10" -> "Map_8";
+"Map_10" -> "Map_6";
+"Map_10" -> "Map_1";
+"Map_1_web_sales" -> "Map_1";
+"Map_5" -> "Map_1";
+"Map_8_store_sales" -> "Map_8";
+"Map_11" -> "Map_8";
+"Map_11" -> "Map_6";
+"Map_11" -> "Map_1";
+"Map_9_date_dim" -> "Map_9";
+"Reducer_4_out_Reducer_4" -> "HDFS";
+}

@@ -1,0 +1,216 @@
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-10-29 13:29:40,339 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-10-29 13:29:40,363 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-10-29 13:29:40,363 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1.0
+2016-10-29 13:29:40,363 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-10-29 13:29:40,364 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-10-29 13:29:42,951 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1048576 bytes, 1 files
+2016-10-29 13:29:43,778 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-10-29 13:29:45,399 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-10-29 13:29:45,422 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-10-29 13:29:45,673 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-10-29 13:29:45,924 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-10-29 13:29:45,930 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-10-29 13:29:45,932 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-10-29 13:29:46,457 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-10-29 13:29:46,769 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-10-29 13:29:46,799 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-10-29 13:29:46,810 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-10-29 13:29:47,022 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1477769369736_0001
+2016-10-29 13:29:48,050 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1477769369736_0001
+2016-10-29 13:29:48,120 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-link-1:8088/proxy/application_1477769369736_0001/
+2016-10-29 13:29:48,125 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1477769369736_0001
+2016-10-29 13:29:59,390 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1477769369736_0001 running in uber mode : false
+2016-10-29 13:29:59,399 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-10-29 13:30:09,580 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-10-29 13:30:15,653 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-10-29 13:30:16,684 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1477769369736_0001 completed successfully
+2016-10-29 13:30:16,824 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=88
+		FILE: Number of bytes written=326723
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=235
+		HDFS: Number of bytes written=1048648
+		HDFS: Number of read operations=9
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=3
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=33685
+		Total time spent by all reduces in occupied slots (ms)=20555
+		Total time spent by all map tasks (ms)=6737
+		Total time spent by all reduce tasks (ms)=4111
+		Total vcore-milliseconds taken by all map tasks=6737
+		Total vcore-milliseconds taken by all reduce tasks=4111
+		Total megabyte-milliseconds taken by all map tasks=34493440
+		Total megabyte-milliseconds taken by all reduce tasks=21048320
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=72
+		Map output materialized bytes=88
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=88
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=105
+		CPU time spent (ms)=1700
+		Physical memory (bytes) snapshot=1481949184
+		Virtual memory (bytes) snapshot=13020151808
+		Total committed heap usage (bytes)=1388187648
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=112
+	File Output Format Counters 
+		Bytes Written=72
+2016-10-29 13:30:16,896 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : write
+2016-10-29 13:30:16,896 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sat Oct 29 13:30:16 MDT 2016
+2016-10-29 13:30:16,896 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-10-29 13:30:16,896 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1
+2016-10-29 13:30:16,897 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 5.21
+2016-10-29 13:30:16,898 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0
+2016-10-29 13:30:16,898 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 5.21
+2016-10-29 13:30:16,898 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0
+2016-10-29 13:30:16,898 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 33.05
+2016-10-29 13:30:16,898 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-10-29 13:30:18,763 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-10-29 13:30:18,776 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-10-29 13:30:18,779 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1.0
+2016-10-29 13:30:18,779 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-10-29 13:30:18,779 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-10-29 13:30:20,113 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1048576 bytes, 1 files
+2016-10-29 13:30:20,410 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-10-29 13:30:21,383 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-10-29 13:30:21,402 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-10-29 13:30:21,656 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-10-29 13:30:22,161 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-10-29 13:30:22,162 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-10-29 13:30:22,171 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-10-29 13:30:22,783 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-10-29 13:30:22,952 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-10-29 13:30:22,997 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-10-29 13:30:23,008 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-10-29 13:30:23,196 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1477769369736_0002
+2016-10-29 13:30:23,549 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1477769369736_0002
+2016-10-29 13:30:23,647 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-link-1:8088/proxy/application_1477769369736_0002/
+2016-10-29 13:30:23,650 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1477769369736_0002
+2016-10-29 13:30:31,933 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1477769369736_0002 running in uber mode : false
+2016-10-29 13:30:31,936 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-10-29 13:30:39,063 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-10-29 13:30:46,133 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-10-29 13:30:46,157 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1477769369736_0002 completed successfully
+2016-10-29 13:30:46,287 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=87
+		FILE: Number of bytes written=326717
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1048811
+		HDFS: Number of bytes written=71
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=24335
+		Total time spent by all reduces in occupied slots (ms)=18105
+		Total time spent by all map tasks (ms)=4867
+		Total time spent by all reduce tasks (ms)=3621
+		Total vcore-milliseconds taken by all map tasks=4867
+		Total vcore-milliseconds taken by all reduce tasks=3621
+		Total megabyte-milliseconds taken by all map tasks=24919040
+		Total megabyte-milliseconds taken by all reduce tasks=18539520
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=71
+		Map output materialized bytes=87
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=87
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=120
+		CPU time spent (ms)=1550
+		Physical memory (bytes) snapshot=1480622080
+		Virtual memory (bytes) snapshot=13017911296
+		Total committed heap usage (bytes)=1388187648
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=112
+	File Output Format Counters 
+		Bytes Written=71
+2016-10-29 13:30:46,340 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-10-29 13:30:46,340 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sat Oct 29 13:30:46 MDT 2016
+2016-10-29 13:30:46,340 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-10-29 13:30:46,340 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1
+2016-10-29 13:30:46,341 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 34.48
+2016-10-29 13:30:46,342 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0
+2016-10-29 13:30:46,342 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 34.48
+2016-10-29 13:30:46,346 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0
+2016-10-29 13:30:46,346 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 25.88
+2016-10-29 13:30:46,346 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 

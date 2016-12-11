@@ -1,0 +1,30 @@
+digraph {
+graph [ fontsize=24, fontname=Helvetica];
+node [fontsize=12, fontname=Helvetica];
+edge [fontsize=9, fontcolor=blue, fontname=Arial];
+
+"Map_4_warehouse" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_2" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Reducer_3" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_6_date_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_1" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_5_item" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_3_out_Reducer_3" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_4" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_5" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_1_inventory" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_6" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"HDFS" [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+"Map_4_warehouse" -> "Map_4";
+"Reducer_2" -> "Reducer_3";
+"Reducer_3" -> "Reducer_3_out_Reducer_3";
+"Map_6_date_dim" -> "Map_6";
+"Map_1" -> "Reducer_2";
+"Map_5_item" -> "Map_5";
+"Map_5" -> "Map_1";
+"Map_4" -> "Map_1";
+"Map_1_inventory" -> "Map_1";
+"Map_6" -> "Map_1";
+"Reducer_3_out_Reducer_3" -> "HDFS";
+}

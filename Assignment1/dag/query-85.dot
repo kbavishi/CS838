@@ -1,0 +1,52 @@
+digraph {
+graph [ fontsize=24, fontname=Helvetica];
+node [fontsize=12, fontname=Helvetica];
+edge [fontsize=9, fontcolor=blue, fontname=Arial];
+
+"Reducer_5" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Reducer_3" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_10_cd2" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_1_web_sales" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_8_web_page" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_4" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Reducer_6_out_Reducer_6" [ label = "R", shape = "box", fillcolor="orange", style="filled" ];
+"Reducer_6" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_11_customer_address" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Reducer_2" [ label = "R", shape="box", fillcolor="orange", style="filled" ];
+"Map_7" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_7_web_returns" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_11" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_9_cd1" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_10" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_9" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_1" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_13" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_8" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_12" [ label = "M", shape="box", fillcolor="green", style="filled" ];
+"Map_12_date_dim" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"Map_13_reason" [ label = "M", shape = "box", fillcolor="green", style="filled" ];
+"HDFS" [label="HDFS", shape="box", fillcolor="lightblue", style="filled", height=0.25, width=1.5];
+
+"Reducer_5" -> "Reducer_6";
+"Reducer_3" -> "Reducer_4";
+"Map_10_cd2" -> "Map_10";
+"Map_1_web_sales" -> "Map_1";
+"Map_8_web_page" -> "Map_8";
+"Reducer_4" -> "Reducer_5";
+"Reducer_6" -> "Reducer_6_out_Reducer_6";
+"Map_11_customer_address" -> "Map_11";
+"Reducer_2" -> "Reducer_3";
+"Map_7" -> "Map_1";
+"Map_7_web_returns" -> "Map_7";
+"Map_11" -> "Reducer_4";
+"Map_9_cd1" -> "Map_9";
+"Map_10" -> "Reducer_3";
+"Map_9" -> "Reducer_2";
+"Map_1" -> "Reducer_2";
+"Map_13" -> "Reducer_4";
+"Map_8" -> "Map_1";
+"Map_12" -> "Reducer_4";
+"Map_12_date_dim" -> "Map_12";
+"Map_13_reason" -> "Map_13";
+"Reducer_6_out_Reducer_6" -> "HDFS";
+}
