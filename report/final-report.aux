@@ -1,29 +1,54 @@
 \relax 
-\citation{hdfsec}
+\citation{hdfs-ec}
+\citation{hdfs-raid}
+\citation{cloudera-blog}
+\citation{isa-l}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Problem Statement}{\thepage }}
-\@writefile{toc}{\contentsline {section}{\numberline {2}System Set up}{\thepage }}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Erasure Coding Overview}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Basics}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Erasure Coding in Hadoop}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Comparison with replica-based HDFS}{\thepage }}
 \@writefile{toc}{\contentsline {section}{\numberline {3}System Design \& Implementation}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}WAN awareness for HDFS-EC Reads Using Greedy Heuristic}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}WAN awareness for HDFS-EC Writes Using Greedy Heuristic}{\thepage }}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Experiments \& Results}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Benchmarking Results}{\thepage }}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An example geo-distributed topology which uses HDFS-EC with RS(3,2). Thick lines represent high-speed LAN links. Thin lines represent low-speed WAN links.}}{\thepage }}
+\newlabel{gda-topo}{{1}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}WAN awareness for EC Reads with Greedy Heuristics}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}WAN awareness for EC Writes with Greedy Heuristics}{\thepage }}
+\citation{hdfs-ec}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Testing Methodology}{\thepage }}
+\newlabel{tput:table}{{5.1}{\thepage }}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Benchmarking Read/Write Throughput (MB/s)}}{\thepage }}
-\newlabel{tput:table}{{1}{\thepage }}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments \& Results}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Benchmarking Results}{\thepage }}
+\newlabel{sec:bench-results}{{5.1}{\thepage }}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.1}Read/Write Throughput}{\thepage }}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces WAN usage (MB)}}{\thepage }}
 \newlabel{wan:table}{{2}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}WAN Awareness Results}{\thepage }}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces HDFS-EC write throughput with No-GD (best case), Naive GD and Greedy WAN aware GD}}{\thepage }}
-\newlabel{greedyTput}{{1}{\thepage }}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces HDFS-EC Read throughput with No-GD, Naive GD and Greedy WAN aware HDFS-EC-GD}}{\thepage }}
-\newlabel{greedyReadTput}{{2}{\thepage }}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.2}WAN Usage}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}WAN Awareness Results}{\thepage }}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Greedy EC writes}{\thepage }}
+\newlabel{sec:greedy-ec-writes}{{5.2.1}{\thepage }}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces HDFS-EC write throughput with No-GD (best case), Naive GD and Greedy WAN aware GD}}{\thepage }}
+\newlabel{greedyTput}{{2}{\thepage }}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Results from greedy EC write tests}}{\thepage }}
+\newlabel{table:gd-writes}{{3}{\thepage }}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Greedy EC reads}{\thepage }}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Results from greedy EC read tests}}{\thepage }}
+\newlabel{table:gd-reads}{{4}{\thepage }}
+\citation{linux-stress}
+\citation{cloudera-blog}
 \citation{hitchhiker}
 \citation{hitchhiker}
-\citation{blog}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Read throughput of greedy WAN aware HDFS-EC-GD with varying cpu load}}{\thepage }}
-\newlabel{stress}{{3}{\thepage }}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Erasure Coding Properties}{\thepage }}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Significance of Storage Unit to Encode}{\thepage }}
+\citation{cloudera-blog}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces HDFS-EC Read throughput with No-GD, Naive GD and Greedy WAN aware HDFS-EC-GD}}{\thepage }}
+\newlabel{greedyReadTput}{{3}{\thepage }}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Read throughput of greedy WAN aware HDFS-EC-GD with varying CPU load on all nodes}}{\thepage }}
+\newlabel{greedy-stress}{{4}{\thepage }}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Impact of CPU load on parity computation}{\thepage }}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Erasure Coding Properties}{\thepage }}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Significance of Storage Unit to Encode}{\thepage }}
+\citation{iridium}
+\citation{clarinet}
 \citation{RS}
 \citation{colossus}
 \citation{hdfs-raid}
@@ -36,8 +61,8 @@
 \bibstyle{abbrv}
 \bibdata{sigproc}
 \bibcite{hitchhiker}{1}
-\bibcite{blog}{2}
-\bibcite{hdfsec}{3}
+\bibcite{cloudera-blog}{2}
+\bibcite{hdfs-ec}{3}
 \bibcite{tale}{4}
 \bibcite{RS}{5}
 \bibcite{colossus}{6}
@@ -45,6 +70,10 @@
 \bibcite{rethink}{8}
 \bibcite{gpfs}{9}
 \bibcite{azure}{10}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Future Insights}{\thepage }}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Related Work}{\thepage }}
-\@writefile{toc}{\contentsline {section}{\numberline {8}References}{\thepage }}
+\bibcite{iridium}{11}
+\bibcite{clarinet}{12}
+\bibcite{isa-l}{13}
+\bibcite{linux-stress}{14}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Future Work}{\thepage }}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Related Work}{\thepage }}
+\@writefile{toc}{\contentsline {section}{\numberline {9}References}{\thepage }}

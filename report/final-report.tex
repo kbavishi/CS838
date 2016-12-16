@@ -1,6 +1,9 @@
 
 \documentclass{sig-alternate-05-2015}
 \usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{algpseudocode}
+\newcommand{\pluseq}{\mathrel{+}=}
 
 \begin{document}
 
@@ -32,7 +35,7 @@
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{Measuring and Improvig Geo Distributed Storage}
+\title{Geo Distributed Storage using EC - Measurements \& Improvements}
 \subtitle{CS838 Fall 2016 Project Report}
 %
 % You need the command \numberofauthors to handle the 'placement
@@ -88,150 +91,280 @@ Hasnain Ali Pirzada\\
 
 \maketitle
 \section{Problem Statement}
-HDFS and other distributed file systems are designed to work in a single data center and do not scale well to geo distributed environment. The primary reason for this is the heterogeneity in speeds of the the inter and intra datacenter links and the fact that the file system itself is unaware of the thin links that connect multiple geo locations. One major way to overcome these problems is to use Erasure Coding instead of replication since erasure coding produces much less amount of data compared to replication and as a result the network and storage overheads are reduced. To solve these problems our goal in this project was two fold. Our first target was to quantify and analyse the performance degradation of HDFS (both replication and erasure coding based) running geo distributedly. Depending upon our findings of this, our second major goal was to reduce the impact of thin WAN links on the performance of geo distributed HDFS. We achieved these goals by first benchmarking both HDFS and HDFS Erasure Coding (HDFS-EC) running geo distributedly and compared their performance with the same system running in a single datacenter. In the second phase of the project we modified HDFS-EC and used greedy heuristics to make it WAN aware in both its reads and writes.
+HDFS and other distributed file systems do not scale well to geo distributed environments. The primary reason is that these file systems are unaware of the heterogeneity in speeds of the the inter and intra datacenter links.
 
-%
+There have been several solutions in this problem space, which focus on query optimization, task placement and data movement using WAN awareness to reduce WAN link usage and achieve better performance.  We take a significantly different approach to solving this problem, i.e we focus on whether using Erasure Coding (EC) instead of replication can result in better solutions. Using EC results in much lesser data overhead compared to replication. This can reduce the amount of data sent on WAN links and also result in storage efficient solutions.
+
+Our goals in this project were two fold. Our first target was to quantify and analyze the performance degradation of HDFS when run in a geo-distributed setting naively, using both replication and EC. Our second major goal was to come up with measures to improve the performance of naive HDFS-EC by accounting for the presence of thin WAN links.
+
+We achieved these goals by first benchmarking both HDFS and HDFS-EC in a geo distributed setting and comparing their performance to a single datacenter setting. In the second phase of the project we have modified HDFS-EC and used greedy heuristics to make it WAN aware in both its reads and writes.
+
 \printccsdesc
 
 
 \keywords{HDFS; Erasure Coding; Geo Distributed Storage}
 
-\section{System Set up}
+\section{Erasure Coding Overview}
+In this section, we provide an overview of erasure coding and its availability as an inbuilt feature in HDFS 3.0.0. We also briefly discuss its performance in comparison to the replica-based fault tolerance scheme which is used by default.
+
+\subsection{Basics}
+The \emph{Reed-Solomon (RS)} family of erasure codes has become a widely used redundancy scheme in many production datacenters owing to its storage benefits. In all RS(n, k) codes, we have \emph{k} parity chunks for each \emph{n} chunks of data. This results in a storage overhead of \( \frac{n+k}{n} \).  
+
+Commonly employed RS schemes include RS(10,4) and RS(6,3) which result in storage overheads of $1.4\times $ and $1.5\times $ respectively. This overhead is a significant improvement on the overhead of $3\times $ incurred by using the replica-based redundancy scheme
+
+For a read operation, any \emph{n} chunks from the \emph{n+k} can be fetched to generate the data. Most systems prefer to fetch \emph{n} data chunks so that no extra computation is required. In case some chunks are lost, the required number of parity chunks are fetched and RS decoding is employed to generate the data.
+
+\subsection{Erasure Coding in Hadoop}
+Hadoop now includes support for online erasure coding in its \emph{3.0.0-alpha1} release\cite{hdfs-ec}. It allows for the encoding \& decoding in an online manner, i.e. during the read \& write operations. This provides us significantly more flexibility over the original HDFS-RAID\cite{hdfs-raid} implementation, which does erasure coding as a periodic background task.
+
+\subsection{Comparison with replica-based HDFS}
+It is commonly believed that using erasure coding results in a significant performance penalty. However, we observe that HDFS-EC equals, and in some cases outperforms, the replica-based HDFS in terms of the observed read and write throughputs. These findings are discussed in more detail in Section \ref{sec:bench-results}, and are consistent with findings made in previous studies\cite{cloudera-blog}.
+
+Much of the improved performance results from the use of Intel's ISA-L libraries\cite{isa-l}. These libraries provide support for fast encoding/decoding for RS codes, by using hand-written assembly codes which use the underlying AVX and AVX2 features of the Intel architectures.
+
+\section{System Design \& Implementation}
+Based on the results discussed in Section \ref{sec:bench-results}, we find that the performance of HDFS-EC can be severely impacted, if deployed naively in a geo-distributed (GD) setting without link cost awareness. 
+
+Drawing insights from these results, we implemented support for WAN awareness in HDFS-EC, which allow for the selection of datanodes based on their link speeds. We added support for both the read and write pipelines, and thus improve performance considerably. 
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.45]{gda_diagram_2.png}
+\caption{An example geo-distributed topology which uses HDFS-EC with RS(3,2). Thick lines represent high-speed LAN links. Thin lines represent low-speed WAN links.}
+\label{gda-topo}
+\end{figure} 
+
+\subsection{WAN awareness for EC Reads with Greedy Heuristics}
+\textbf{Motivation:} We build the motivation for the need of WAN awareness in EC reads with an example. Consider the topology described in Figure \ref{gda-topo}, which uses the RS(3,2) scheme to store data. It contains the data \& parity blocks for a particular file, such that datacenter A hosts 2 data and 2 parity blocks whereas datacenter B hosts 1 data block.
+
+Now, assume that there is a client in datacenter A which wants to read that file. The default policy is to fetch all the data blocks and to avoid parity blocks because of the high computation cost of reconstructing the data. This policy makes sense in non-GD settings, where the computation cost is very likely to exceed the network cost of fetching the data blocks.  However in a GD cluster, this may not be true because the WAN link speed is much lower than that of intra DC links. In our example, it might be faster to fetch the parity blocks from A and reconstruct the data, rather than fetching the data block residing in datacenter B over the slow WAN link.
+
+\textbf{Greedy heuristics:} To achieve this, we first imbibe link cost awareness into HDFS. This is done by modifying the namenode behaviour to call a \emph{link awareness} script when datanode registration happens. This script allows the namenode to be aware of the link cost between any two pair of datanodes using their rack locations. In our current model, the costs are static and hardcoded in our script. 
+
+After this, we build a greedy approach for picking EC chunks based on their costs. A simplified version in pseudocode is described below:
+\vspace{0.5em}
+\begin{algorithmic}
+\Function{pickChunksGreedy}{n, client, chunks} 
+\For {chunk i in chunks}
+\State $cost[i]\gets \Call{linkCost}{client.rack, chunk[i].rack}$
+\If {chunk[i].isParity}
+    \State $cost[i]\gets cost[i] + computationPenalty$
+\EndIf
+\EndFor
+
+sortedChunks = \Call{sortChunksByCost}{chunks, cost}
+
+\Return sortedChunks[:n]
+\EndFunction
+\end{algorithmic}
+\vspace{0.5em}
+
+The \emph{pickChunksGreedy} function is called for every erasure-coded stripe in a file. It basically picks \emph{n} chunks (or stripe units) out of a possible \emph{n+k} chunks in an RS(n,k) scheme, in a greedy manner. The cost associated with each chunk equals the link cost from the client to the datanode hosting the chunk. Parity chunks incur an additional penalty called \emph{computationPenalty} because of the computational costs associated with reconstruction. The \emph{computationPenalty} can be configured through an HDFS config knob.
+
+So in our earlier example, if we keep the WAN costs to be higher than the \emph{computationPenalty}, the client would read 2 data cells and 1 parity cell from datacenter A and use these to reconstruct the data.
+
+\subsection{WAN awareness for EC Writes with Greedy Heuristics}
+During HDFS-EC writes, the namenode selects \emph{n+k} datanodes to host data and parity cells in an RS(n,k) scheme. In order to provide greater fault tolerance to rack power failures, the namenode tries to select datanodes across multiple racks. 
+
+However this behaviour of picking multiple racks can result in the data being spread across multiple datacenters in a GD setting. An example of this can be seen in Figure \ref{gda-topo}. In order to achieve good performance in such a case, we must incur the extra computation overhead associated with fetching the local parity chunks.
+
+In cases like these, it may make sense to sacrifice rack fault tolerance for better performance. In our example topology, it might be better to pick the 5 datanodes hosted at datacenter A while creating the file. 
+
+\textbf{Greedy heuristics:} We again build a greedy approach for picking the datanodes for hosting the blocks during file writes, which tries to balance rack fault tolerance along with the link costs associated with the datanodes. A simplified version is described in pseudocode below:
+
+\vspace{0.5em}
+\begin{algorithmic}
+\Function{selectDatanodesGreedy}{n, client, racks} 
+\For {rack i in racks}
+  \State $cost[i]\gets \Call{linkCost}{client.rack, rack[i]}$
+\EndFor
+
+rackHeap = \Call{sortRacksByCost}{racks, cost} 
+\\
+\State $chosenDatanodes \gets []$
+
+\While {$chosenDatanodes.size() < n$} 
+  \State $bestRack, cost\gets rackHeap.min()$
+  \State $chosenDatanodes \pluseq bestRack.getRandomDatanode()$
+  \If {$bestRack.datanodes.size() > 0$}
+      \State $cost \gets cost + sameRackPenalty$
+      \State rackHeap.addEntry(bestRack, cost)
+  \EndIf 
+\EndWhile
+
+\Return chosenDatanodes
+\EndFunction
+\end{algorithmic}
+
+\vspace{0.5em}
+This function \emph{selectDatanodesGreedy} is invoked every time a new block is to be created, and helps select the datanodes to host the data and parity cells for the new block. The function first builds a heap of racks, arranged by their link costs. It then picks the rack with the lowest cost, and picks a random datanode from that rack. If the rack contains more datanodes, it is re-inserted into the heap but with an additional penalty called the \emph{sameRackPenalty}. This penalty allows us to balance the goals of rack fault tolerance with link costs. Its value is configurable through an HDFS config knob. 
+
+\textbf{Impact:} This approach can significantly improve performance by skipping the WAN link altogether. A side effect of this is that it leads to data localization, i.e. data is aggregated among local datanodes only leading to higher loads on them. This can be tackled by picking a large value for \emph{sameRackPenalty}. Another possible solution is to have a data movement process which runs periodically in the background, and balances disk utilization among nodes by moving data around. This data movement idea is left as a possible future task for this project.
+%This method of selecting the datanodes for writes has a direct affect on the WAN usage. Since the link cost of any datanode in datacenter B is always much higher, the namenode will select the write locations which are closer to the writer reducing the WAN usage. A side effect of this would be that the data would be aggregated near the producers (at least for small files). For large enough files however, the datanodes in the remote datacenter would eventually be selected since penalty for a given rack increases linearly with the number of cells that have already been written in the same rack so at some point selecting a rack in the same datacenter would have more cost than writing to the remote one. 
+
+\section{Testing Methodology}
 The first part of our project was to quantify the degradation in HDFS and HDFS-EC performance in Geo Distributed (GD) settings. To do this, we set up a cluster of machines placed in different geo locations , with HDFS running on top of them. We needed to chose the number of machines and the replication factor in such a way that at least one replica is guaranteed to be on a datanode in another DC so that the WAN links are brought into play. 
 
 To be able to measure the extent of degradation in GD settings we also needed to run the same set of experiments in a non GD environment. Furthermore, to compare the extent of degradation in replication based scheme vs the erasure coding scheme we needed to run the same set of experiments on HDFS with replication as well as HDFS-EC in both GD and non GD environment. So in total we had four different settings which are described and explained as follows:
 
 \begin{enumerate}
   \item \textbf{HDFS-Replication based} HDFS running with replication factor 3 with three datanodes in Wisc CloudLab. This is the base case for measuring  and compare the GD degradation in replication based HDFS. There is no remote node since there is just one datacenter.  
-	\item \textbf{HDFS-Replica-GD} HDFS running with replication factor 3 with two datanodes in Wisconsin CloudLab and one datanode in Clemson. A replication factor of 3 here with 2 datanodes in Wisconsin and 1 in Clemson ensure that one replica of each block is located remotely.
-	\item \textbf{HDFS-EC} HDFS running with erasure coding scheme Reed-Solomon (3,2) with five datanodes in Wisc CloudLab. HDFS-EC fork that we used\cite{hdfsec} required at least n + r datanodes in the cluster while using  RS(n,r) erasure coding scheme. This is done to ensure that cells of a data stripe are well distributed across the cluster since the number of failures that can be tolerated here is equal to r i.e., 2 in this case. A good distribution of the stripe cells ensures better fault tolerance.  Hence, for this configuration we require 3 + 2 = 5 datanodes. All of them are in Wiscnosin.
-	\item \textbf{HDFS-EC-GD} HDFS running with erasure coding scheme Reed-Solomon (3,2) with four datanodes in Wisc CloudLab and one datanode in Clemson. The reason for choosing 5 nodes in total is same as the above one. However, now four of the five datanodes are in Wisconsin and one is in Clemson forcing every write to involve the WAN. 
+	\item \textbf{HDFS-Replica-GD} HDFS running with replication factor 3 with two datanodes in Wisconsin CloudLab and one datanode in Utah. A replication factor of 3 here with 2 datanodes in Wisconsin and 1 in Utah ensure that one replica of each block is located remotely.
+	\item \textbf{HDFS-EC} HDFS running with erasure coding scheme Reed-Solomon (3,2) with five datanodes in Wisc CloudLab. The HDFS release that we used\cite{hdfs-ec} requires at least n + k datanodes in the cluster when using an RS(n,k) erasure coding scheme. This is done to ensure that cells of a data stripe are well distributed across the cluster since the number of failures that can be tolerated here is equal to k i.e., 2 in this case. A good distribution of the stripe cells ensures better fault tolerance. Hence, for this configuration we require 3 + 2 = 5 datanodes. All of them are in Wisconsin.
+	\item \textbf{HDFS-EC-GD} HDFS running with erasure coding scheme Reed-Solomon (3,2) with four datanodes in Wisc CloudLab and one datanode in Utah. The reason for choosing 5 nodes in total is same as the above one. However, now four of the five datanodes are in Wisconsin and one is in Utah forcing every write to involve the WAN. 
   \end{enumerate}
-The WAN speed for all the above configurations is measured to be around 1 Gbps while the intra DC links are all 10 Gbps. This high difference in the two link speeds allows us to more realistically observe the effect of WAN link degradation. We rigorously evaluated all the HDFS variants described using the TestDFSIO workloads. The details are in the experiments and results section. 
-
-\section{System Design \& Implementation}
-Drawing insights from the results (which we describe and explain in the results section) of our performance benchmarking of HDFS in GD settings (both replicationa and EC based)  we implemented WAN awareness in HDFS-EC and tuned both the read and write pipelines to take WAN into account while deciding on the datanodes for read/write for the HDFS client. 
-\subsection{WAN awareness for HDFS-EC Reads Using Greedy Heuristic}
-We build the motivation for WAN aware HDFS-EC reads with an example. Let us say we have a file stored in HDFS-EC running atop a cluster which has nodes in two datacenters A and B. The file is stored as a stripe of cells with some cells representing actual data and others representing parity. In one Reed-Solomon(3, 2) group the file has 3 cells of data which would result in a total of 5 cells written in HDFS 3 being the data cells and 2 being the parity cells. Assume that datacenter A has 2 data cell and one parity cell, while datacenter B has 1 data cell and one parity cell. Now, theere is an HDFS-EC client in datacenter A who wants to read a file.  The default policy is to read all the data cells. The parity cells are only read when the data cell is unavailable because of the high computation cost of reconstructing the data from parity.
-
-In a single data center circumstances, this makes sense because the computation cost is very likely to exceed the network cost that is paid to read a data cells from a remote node.  However, in a GD cluster, this may not be true because the WAN link is much thinner than the intra DC links. Our insight was that it might be faster to actually read 2 data cells and 1 parity cell locally (i.e., from datacenter A) and reconstruct all the three datacells in datacenter A avoiding the WAN link altogether.
-
-To achieve this, we associate costs with every network link. The cost for a WAN link is much higher than the cost for inter DC links. We also associate cost with the reconstruction of data cells using 1 or more parity cells. In our current model, these costs are static and hardcoded at the beginning. At the time of reading, the client picks the r cells with the minimum cost. Note that if a parity cell is chosen, it implies that the link cost for reading this cell plus the computation cost of reconstructing the data using this parity cell and other data cells is still lower than the link cost of the next avaialble data cell. So in the above example since the WAN cost is much higher the client would read 2 data cells and 1 parity cell from datacenter A and use these to reconstruct the 3rd data cell.
-
-\subsection{WAN awareness for HDFS-EC Writes Using Greedy Heuristic}
-The write policy in HDFS-EC is similar. The namenode selects (r + s) nodes for writing r data cells and the corresponding s parity cells. It then writes these cells in round robin way to these r + s datanodes. This is done to avoid the loss of multiple data cells in case of a datanode failure. However, while choosing the datanodes to store data and parity cells, the namenode can select a datanode in the other datacenter despite having a datanode locally. This would involve the the write to go through a WAN. 
-
-To prevent this situation, we again implement a simple cost model in the HDFS-EC write pipeline. We associate a parameter we call samerackpenalty with every file write. Moreover, we have link costs available between every pair of racks in the topology. Whenever an HDFS-EC client wants to write a file, the namenode sorts the available datanodes according to their distance from the writer. Now, for each block to be written, it picks the datanode with the minimum cost and remembers the rack from which this datanode was picked. When choosing a datanode for the next block to be written it picks the datanode with the minimum cost with the added constraint that if a datanode has already been chosen from the same rack the total cost of this node becomes linkcost+samerackpenalty and if this total cost is still the minimum of the cost of all the available data nodes this  datanode is chosen. This way, for any subsequent iterations, the cost of this datanode would be (linkcost + n * samerackpenalty) where n is the number of times a datanode from this rack has been chosen for this client. 
-
-\textbf{How does this scheme help?}
-
-This method of selecting the datanodes for writes has a direct affect on the WAN usage. Since the link cost of any datanode in datacenter B is always much higher, the namenode will select the write locations which are closer to the writer reducing the WAN usage. A side effect of this would be that the data would be aggregated near the producers (at least for small files). For large enough files however, the datanodes in the remote datacenter would eventually be selected since penalty for a given rack increases linearly with the number of cells that have already been written in the same rack so at some point selecting a rack in the same datacenter would have more cost than writing to the remote one. 
+The WAN speed for all the above configurations is measured to be around 100 Mbps while the intra DC links are all 10 Gbps. This high difference in the two link speeds allows us to more realistically observe the effect of WAN link degradation. We rigorously evaluated all the HDFS variants described using the TestDFSIO workloads. The details are in the experiments and results section. 
 
 \section{Experiments \& Results}
 
 Our experiments and results for this project are divided into two parts. In the first part we describe and explain the the benchmarking experiments we performed to measure the degradation of performance of HDFS and HDFS-EC in GD settings. In the second part we discuss the results of WAN aware HDFS-EC that we implemented. Note that all the results we report here are averaged over 10 runs. %For the sake of fair comparison we drop the buffer cache between runs. 	
 \subsection{Benchmarking Results}
+\label{sec:bench-results}
 We run TestDFSIO for four different kinds of measurements. Small file reads, small file writes, large file reads and large file writes and report the results for each kind of test case. Running the same tests for two different size of  files gives us additional insights on how the read and writes of geo distributed HDFS and HDFS-EC are affected by the file size. We discuss and explain all of our observations below. 
 
 For our HDFS performance measurements we run the TestDFSIO benchmark on a Hadoop cluster and measure HDFS read / write throughput of the system. In case of geo-distributed cluster we also measure the total WAN usage. 
 
 \begin{table}
 \centering
-\caption{Benchmarking Read/Write Throughput (MB/s)}
 \label{tput:table}
 \begin{tabular}{|c|c|c|c|l|} \hline
 Test&Replica&Replica-GD&EC&EC-GD\\ \hline
-Small file reads&456.357&456.578&322.664&84.186\\ \hline
-Large file reads&748.012&739.626&635.916&174.667\\ \hline
-Small file writes&145.071&3.008&116.404&8.523\\ \hline
-Large file writes&186.138&3.03&150.258 & 9.05 \\
+Small file reads&149.96&137.7&264.36&273.9\\ \hline
+Large file reads&152.24&157.7&442.60&436.3\\ \hline
+Small file writes&252.39&2.41&262.32&6.99\\ \hline
+Large file writes&240.94&2.42&339.91&7.26 \\
 
 \hline\end{tabular}
+\caption{Benchmarking Read/Write Throughput (MB/s)}
 \end{table}
+
+\subsubsection{Read/Write Throughput}
+
+Table \ref{tput:table} shows the read and write throughput obtained in all the four settings. The following important observations can be made:
+\begin{itemize}
+\item \emph{EC outperforms replica in almost all areas} - This is a somewhat surprising result and it contradicts some of our initial findings. We discovered a critical issue with our initial results -- we were not clearing the cache after running the tests. After fixing the issue, we saw that the read \& write throughputs observed in HDFS-EC exceed those observed in HDFS-replica in almost all cases. 
+
+We believe that EC writes are able to perform better of two main reasons. First, the client simultaneously writes to all datanodes in EC, instead of writing to them one after the other in a pipelined manner. It can thus achieve better performance by utilizing different disk spindles in parallel. Second, EC has less storage overhead which means that the write operations can finish quicker as there is less data that needs to go to disk. EC reads also perform better by being able to read from several disk spindles in parallel. 
+
+This simultaneous reading \& writing behaviour however comes at a cost -- it can lead to a higher network throughput requirement on the client. In theory, this would mean that you can support only a limited number of EC clients running on the same node. We would have liked to analyze these limitations in more detail, if we had the time. 
+
+\item \emph{Write throughputs significantly lower in GD} - As expected, the write throughputs in both HDFS-EC and HDFS-replica are significantly impacted by the slow WAN link. 
+
+\item \emph{Read throughputs unaffected in GD} - Read performance in both HDFS-EC and HDFS-replica remains unaffected when run in GD settings. The former uses the data blocks available locally and ignores the parity blocks available on the remote node. The latter avoids the WAN link by simply picking the replica available locally.  
+\end{itemize}
+
 \begin{table}
 \centering
 
 \begin{tabular}{|c|c|c|l|} \hline
 Test&Replica-GD&EC-GD\\ \hline
-Small file reads&2.428&26.058\\ \hline
-Large file reads&3.221&381.518\\ \hline
-Small file writes&74.135&26.244\\ \hline
-Large file writes&1150.637&385.063 \\
+Small file reads&2.34&2.35\\ \hline
+Large file reads&2.34&2.33\\ \hline
+Small file writes&73.89&26.26\\ \hline
+Large file writes&1147.19&384.05 \\
 
 \hline\end{tabular}
 \caption{WAN usage (MB)}
 \label{wan:table}
 \end{table}
 
-\textbf{Read/Write Throughput} \\
+\subsubsection{WAN Usage}
+Table \ref{wan:table} shows the results of WAN usage for all HDFS-EC and HDFS replication for all the four test cases. The following observations can be made:
 
-Table \ref{tput:table} shows the read and write throughput obtained in all the four settings. EC reads worse than replica reads - The read throughput in HDFS-replica is significantly better because in order to read one HDFS block, we can simply fetch the data-local block. However in HDFS-EC with the Reed-Solomon (3,2) encoding scheme, we have to fetch 3 data stripes from different locations in order to read one block (note that a data stripe unit is not equal to an HDFS block). 
-EC reads impacted more by GD clusters - The impact of running in geo-distributed clusters is higher on reads in HDFS-EC than on HDFS-replica. This is because in HDFS-EC, all the data stripes (including the one in another DC) have to be fetched to read one block. In HDFS-replica, the reads avoid using the WAN link altogether by picking the closest replica in the same DC.
-EC writes worse than replica writes - This is because the parity stripes have to be computed in HDFS-EC before it can be written to the disk and therefore takes more time.
-Replica writes impacted more in GD clusters - The impact of running in geo-distributed clusters is higher on writes in HDFS-replica than on HDFS-EC. \\
+\begin{itemize}
+\item \emph{Less WAN usage in EC writes} - EC clearly uses far less WAN bandwidth than the replica scheme, roughly $3\times $. This is expected since the storage overhead of HDFS-replica is twice that of HDFS-EC, $3\times $ and $1.5\times $ respectively. This alone should result in a reduction of bytes sent over the WAN link by $2\times $. More reduction is seen because there are more datanodes in the HDFS-EC setup, resulting in a lower proportional share of stored data per datanode. 
 
-\textbf{WAN Usage} \\
-
-Table \ref{wan:table} shows the results of WAN usage for all HDFS-EC and HDFS replcation for all the four test cases. 
-
-The following observations can be made:
-\textbf{Less WAN usage in EC writes:} Erasure coding clearly uses far less WAN bandwidth than the replica scheme. This difference can be explained by two factors:
-Storage efficiency - The amount of data stored in HDFS-replica is more than in HDFS-EC. For every X bytes of data, HDFS-replica stores another 2X bytes compared to HDFS-EC which only stores 0.5X extra bytes.
-
-
-Mismatching testcases - Since the proportion of datanodes in another DC is higher for the HDFS-replica testcase (1/3) compared to that for HDFS-EC (1/5), the amount of data that needs to flow through the WAN link is also lower. To be fair, even if we had say 2 of the 5 datanodes in another DC in HDFS-EC, we expect the WAN usage to be less for EC. The reason for this configuration is explained in the system set up section. 
-
-
-\textbf{More WAN usage in EC reads} This is because the local replicas are picked in the replica scheme. Hence the WAN usage is very small.  However, in EC some cells of all the logical file blocks are in the Clemson cluster because of the round robin placement of cells across the datanodes. As a result, every read involves reading some cells from the remote node hence the WAN usage is much higher. 
+\item \emph{No WAN usage in EC and replica reads} - HDFS-replica avoids using the WAN link altogether by picking local replicas. In our HDFS-EC setup, we have the Utah node storing parity cells. Thus the default behaviour of picking only data cells results in the WAN link being avoided. 
+\end{itemize}
 
 \subsection{WAN Awareness Results}
-For our WAN aware HDFS-EC-GD writes the system setup is slightly different. We run the experiments for a total of 6 datanodes now. Five of these datanodes are in Wisconsin while the sixth one is in Clemson. This gives the writer a choice of chosing between either all the 5 Wisconsin nodes or 4 Wisconsin nodes and 1 Clemson node. If we had less than 5 nodes in Wisconsin than it would not be possible to measure if our algorithm is actually saving any WAN writes since each write would be forced to go over the WAN since a minimum of 5 datanodes are required for RS(3, 2) erasure coding.
+
+\subsubsection{Greedy EC writes}
+\label{sec:greedy-ec-writes}
+\textbf{Setup}: For our WAN aware HDFS-EC-GD writes, the system setup is slightly different from that used in Section \ref{sec:bench-results}. We run the experiments for a total of 6 datanodes now. Five of these datanodes are in Wisconsin while the sixth one is in Utah. This is similar to our example topology shown in Figure \ref{gda-topo}. 
+
+This gives the writer the option of choosing between either all the 5 Wisconsin nodes or 4 Wisconsin nodes and 1 Utah node. If we had less than 5 nodes in Wisconsin than it would not be possible to verify whether our greedy algorithms were kicking in because there would no alternatives available. 
+
+We perform our tests on large files alone (ie. 1 GB), and pick values of 1 and 100 for the intra-DC and WAN link costs respectively. We also configure a value of 5 for the \emph{sameRackPenalty}. \\
 
 \begin{figure}
-
 \centering
-\includegraphics[scale=0.25]{greedy_write_tput.png}
+\includegraphics[scale=0.21]{greedy_write_tput.png}
 \caption{HDFS-EC write throughput with No-GD (best case), Naive GD and Greedy WAN aware GD}
 \label{greedyTput}
 \end{figure} 
+
+\begin{table}
+\centering
+
+\begin{tabular}{|c|c|c|c|l|} \hline
+EC write type&Best case&Naive EC&Greedy EC\\ \hline
+Throughput&359.81&7.26&321.42\\
+
+\hline\end{tabular}
+\caption{Results from greedy EC write tests}
+\label{table:gd-writes}
+\end{table}
+
+\textbf{Results}: Figure \ref{greedyTput} and Table \ref{table:gd-writes} show the write throughputs observed in this setting. The \emph{Naive EC writes} bar represents the throughput observed when our greedy write algorithm is disabled. The \emph{Best case} bar represents the EC read speeds that were achieved in an intra-DC setting in \ref{sec:bench-results}. It acts as an upper bound to compare our greedy algorithm's performance. 
+
+As can be seen, our greedy EC write algorithm achieves much higher throughput than a naive implementation in a GD setting. The naive approach ends up selecting a Utah node as one of the datanodes in order to meet its goal of rack fault tolerance. 
+
+On the other hand, our greedy approach ends up selecting all the Wisconsin nodes for 5 datanodes because the WAN link cost is far greater than the \emph{sameRackPenalty}. It thus avoids using the WAN link altogether and achieves much higher performance.
+
+The observed read throughput in the greedy case is also very close to the best case throughputs (ie. intra-DC throughputs). This proves that the minimal overhead of our greedy algorithm. 
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.23]{greedy_read_tput.png}
 \caption{HDFS-EC Read throughput with No-GD, Naive GD and Greedy WAN aware HDFS-EC-GD}
 \label{greedyReadTput}
-
 \end{figure} 
 
-Figure \ref{greedyTput} shows the write throughput for this setting. Naive GD represents the write scenario without using our greedy heuristic to save WAN bandwidth. The best case represents a cluster with all nodes in one datacenter. It acts as a best case comparison point since no WAN link is traversed. In the plot we can see Greedy EC throughput is much higher than the naive EC throughput and is very close to the best case throughput. This is because for the naive write, the namenode selects the datanode in Clemson since it is in a different rack than all the other available nodes. The namenode is unaware that this rack is actually in a different datacenter. As a result,  WAN is used on each write which constrains the write throuput attained. Our greedy write heuristic however has cost for all the links and the cost of the WAN link is much higher than intra DC links. Therefore, the Clemson node is not chosen for writes initially. So, the throuput attained is very close to the best case as WAN is not involved at all. However, after each write in a rack, the rack penalty keeps increasing linearly and eventually writing within the rack at Wisconsin, is more expensive than traversing the WAN and writing to the Clemson datanode. When that happens, WAN is used. As a result, the write throuhput with this greedy write approach is close to but still less than the best case writes (which do not have any WAN to traverse). We can extrapolate that if the file sizes are very large (much larger than the 1 GB we used) this difference would become higher since these WAN writes would be more frequent. 
+\begin{table}
+\centering
+
+\begin{tabular}{|c|c|c|c|l|} \hline
+EC read type&Best case&Naive EC&Greedy EC\\ \hline
+Throughput&442.53&4.61&439.67\\
+
+\hline\end{tabular}
+\caption{Results from greedy EC read tests}
+\label{table:gd-reads}
+\end{table}
 
 
+\subsubsection{Greedy EC reads}
+\textbf{Setup}: We reuse the setup from Section \ref{sec:greedy-ec-writes}. Only this time, we select a very high value for \emph{sameRackPenalty}, much higher than the WAN link cost. This results in data distribution similar to Figure \ref{gda-topo}, where one node in Utah holds data cells for a given file. The high value of \emph{sameRackPenalty} forces it to consider the Utah node early on because the WAN link cost is lower.
+
+It is important to have the Utah node host data cells and not parity cells, because this would allow us to demonstrate the impact of our greedy EC read algorithm. We again run tests only for large files (ie. 1 GB). We pick 1 and 100 as the intra-DC and WAN link costs. We pick a parity \emph{computationalPenalty} of 10. \\
+
+\textbf{Results}: Figure \ref{greedyReadTput} and Table \ref{table:gd-reads} show the results from our experiment. The \emph{Naive EC read} bar shows the read throughput achieved when our greedy behaviour is disabled. We again show the \emph{Best case EC read} figures as a useful tool for knowing the upper bound. 
+
+As can be seen, our greedy EC read algorithm achieves much higher performance than a naive EC read implementation. The naive implementation would always prefer fetching the data cells unless they are lost. It will thus incur the penalty of using the WAN link in order to get the data cells from the Utah. 
+
+On the other hand, our greedy algorithm correctly picks the parity cells available in Wisconsin nodes because the parity computation penalty is far lower than the WAN link cost. It is thus able to achieve much higher performance by bypassing the WAN link. 
 
 \begin{figure}
-
 \centering
-\includegraphics[scale=0.21]{stress.png}
-\caption{Read throughput of greedy WAN aware HDFS-EC-GD with varying cpu load}
-\label{stress}
+\includegraphics[scale=0.4]{stress.png}
+\caption{Read throughput of greedy WAN aware HDFS-EC-GD with varying CPU load on all nodes}
+\label{greedy-stress}
 \end{figure}
- %This is done because RS(3,2) needs at least five datanodes to spread its cells as described in system setup section. %However, to be able to show that our greedy heuristic for reducing writes over WAN we provide all the 5 nodes in Wisconsin So the 
-Figure \ref{greedyReadTput} shows the read throughput achieved through greedy recomputation of the data block using the parity blocks which are avaible locally. To demonstarate the effect of our greedy recomputation we ran the experiments with 4 datanodes in Wisconsin and 1 in Clemson. This would mean that one cell of each stripe in RS(3, 2) is across the WAN. Furthermore, we want to make sure that the cell in Clemson is a data cell and not a parity cell. This would ensure that we actually face the situation where we have the option of either doing a data cell read over the WAN or reconstructing that data cell using the parity cell that is available locally. 
 
-To force HDFS-EC-GD into writing data cells in Clemson we performed our greedy writes with a very high rack penalty. Since, the cells are placed in round robin way and the first 3 cells are the data cells while the next two parity cells, this meant that the datanode for our second cell was always chosen to be in Clemson and since second cell is the data cell we always had a remote data cell.  
+\subsubsection{Impact of CPU load on parity computation}
+A natural question which follows from our greedy EC read behaviour is -- how much is the overhead associated with doing parity computation? In order to find this out, we re-run our greedy EC read tests with varying CPU loads. We use the Linux \emph{stress} \cite{linux-stress} utility to generate CPU loads of 50\%, 75\% and 100\% on the namenode and all the datanodes. 
 
-Now at the time of read, the naive HDFS-EC read always reads the data cells unless they are unavailble due to datanode failure. %In that case, it informs the namenode of the unavailability (or namenode detects that itself after hearbeat goes missing for an hour) and the reconstruction of the missing cells is quickly done in parallel. 
-As a result, it has to fetch one cell from Clemson for every read so the read throughput is extremely low. For our greedy reads however, we just pick R cells which have the least cost out of a total of R + S cells. If all of these R cells are data cells we are done. If some of these are parity cells then we recompute the missing data cells. For data cells, this cost is equal to the static link cost we picked in the beginning. For parity cells, this cost is equal to the link cost plus the computation cost for reconstructing the missing data cell. In this test case, as the WAN link cost is much higher than the computation cost the parity cell is always preferred over the remote data cell as a result WAN is never traversed and instead the missing data cell is always recomputed. Since we had dedicated physical machines for this evaluation, our compute capacity was never a bottleneck and the data cells were reconstructed very fast from the parity cells and the available data cells. As a result, the read troughput is almost equal to the non GD read throuput. 
-
-In a more realistic scenario however, the compute could be a bottleneck so measure the effect of limited compute avaialability, we stress using the linux stress tool to 50\% cpu load 75\% cpu load and 100\% cpu load and measured the trhoughput achieved by our greedy reads scheme. Figure  \ref{stress} shows the effect of cpu load on the read throughput of greedy HDFS-EC-GD reads. Although, this throughput decreases with increasing cpu load, it is still much higher than the reads invovling WAN. 
+The results are shown in Figure \ref{greedy-stress}. The reduction in EC read performance is marginal -- about 5\% even when we have high CPU loads of 75\%. This shows the low CPU overhead and the efficiency of the ISA-L libraries used for encoding/decoding. These findings are also consistent with other studies, who have shown peak RS decoding throughputs of 1.8 GB/s using these libraries \cite{cloudera-blog}.
 
 \section{Discussion}
 
 \subsection{Erasure Coding Properties}
 
-There are various kinds of encoding families that can be used to encode data. These include RS codes, LRC codes and the product codes. Since HDFS-EC used RS encoding we will restrict our discussion to tradeoffs of using different values k and r in RS encoding. According to the coding theory a (k, r) RS code entails the minimum storage overhead among all (k, r) erasure codes that tolerate any r failures \cite{hitchhiker}. Moreover, RS codes can be constructed with arbitrary values of k and r depending upon the system at hand \cite{hitchhiker}. These two properties make RS codes very attractive for use in large scale storage systems. 
+There are various kinds of encoding families that can be used to encode data. These include RS codes, LRC codes and the product codes. Since HDFS-EC used RS encoding, we will restrict our discussion to tradeoffs of using different values \emph{n} and \emph{k} in RS encoding. According to the coding theory an (n, k) RS code entails the minimum storage overhead among all (n, k) erasure codes that tolerate any \emph{k} failures \cite{hitchhiker}. Moreover, RS codes can be constructed with arbitrary values of \emph{n} and \emph{k} depending upon the system at hand \cite{hitchhiker}. These two properties make RS codes very attractive for use in large scale storage systems. 
 
 
-The choice of the parameters k and r for any particular system determines the storage overhead and recovery cost for the system. In general achieving lower storage overhead increases the recovery cost of the system and vice versa. For Example, an RS(10, 4) system has a 1.4x overhead compared to 1.5x for RS (6, 3). However, in case of an unavailable datablock RS (10, 4) has to read 10 blocks while RS (6, 3) only needs to read 6.This trend can be generalized for any possible values or k and r. 
+The choice of the parameters \emph{n} and \emph{k} for any particular system determines the storage overhead and recovery cost for the system. In general achieving lower storage overhead increases the recovery cost of the system and vice versa. For Example, an RS(10, 4) system has a $1.4\times $ overhead compared to $1.5\times $ for RS (6, 3). However, in case of an unavailable datablock RS (10, 4) has to read 10 blocks while RS (6, 3) only needs to read 6.This trend can be generalized for any possible values or \emph{n} and \emph{k}. 
 
 
 
@@ -241,15 +374,21 @@ The storage unit to be encoded is determined by the layout of the file system. T
 
 %This however, may not be very suitable for Map-Reduce style applications because data %locality cannot be achieved as most reads would involve multiple remote I/Os.
 
-In the replication based storage, a contiguous layout seems to be an obvious choice as there is no point in paying an extra cost of many remote reads for every read event. However, in Erasure Coded storage, things become a little more interesting. This is because the number of parity blocks computed in RS encoding scheme is always equal to r irrespective of the total number of data blocks in the file \cite{blog}. For example, while using RS (10, 4) if a file consists of just one data block, it will still end up computing and writing 4 parity blocks resulting in a total storage overhead of 400\% which is worse than 3x replication! However, in a striped layout and assuming a cell size of 1 MB and the HDFS data block size of 128MB the same 1 block file would still have a 1.4 x overhead since it will produce about 51 MBs of parity (since the parity is computed for 1 MB stripe cells) compared to 512 MB of parity produced by the contiguous layout for the same 128 MB file. 
+In the replication based storage, a contiguous layout seems to be an obvious choice as there is no point in paying an extra cost of many remote reads for every read event. However, in Erasure Coded storage, things become a little more interesting. This is because the number of parity blocks computed in RS encoding scheme is always equal to \emph{k} irrespective of the total number of data blocks in the file \cite{cloudera-blog}. For example, while using RS (10, 4) if a file consists of just one data block, it will still end up computing and writing 4 parity blocks resulting in a total storage overhead of 400\% which is worse than $3\times $ replication! However, in a striped layout and assuming a cell size of 1 MB and the HDFS data block size of 128MB the same 1 block file would still have a $1.4\times $ overhead since it will produce about 51 MBs of parity (since the parity is computed for 1 MB stripe cells) compared to 512 MB of parity produced by the contiguous layout for the same 128 MB file. 
 
 Therefore, the type of file system layout directly affects the storage overhead for the erasure coding scheme at hand. This choice of layout in turn is determined the file size distribution on the cluster. Hence, a cluster with many small files is not suitable for erasure coding in the contiguous layout because the storage overhead would be worse than replication. The HDFS-EC alpha release that we used and extended uses a striped layout with 1 MB cell size. 
 
-\section{Future Insights}
+\section{Future Work}
 
-Our greedy approaches for chosing datanodes for reads and writes show that they can be effective in reducing the performance degradation of HDFS running in GD settings. The benefits achieved by these schemes are due to the fact that they minimize the use of WAN in the read and write pipeline. For HDFS-EC-GD reads our current model just reads the cells with minimum cost and ignores the other constraints of the system. This may not always be beneficial e.g., in a scenario when WAN link utilization is very low and cpu utilization is very high. It would be interesting to incorporate the cpu utilization of the reader and and the available bandwidth on the inter DC WAN link. Furthermore, having multiple geo locations (unlike only 2 in our evaluation) would make the problem of selecting datanodes more interesting. Our hunch is that cpu and inter DC link utilization can be incorporated as constraints of a linear formulation which can then be used to select the datanode for reading data/parity cells. An HDFS client then periodically solves this formulation in the background to get an estimate of which datanodes to be selected for subsequent reads/writes. 
+Our greedy approaches for choosing datanodes for reads and writes show that they can be effective in reducing the performance degradation of HDFS running in GD settings. The benefits achieved by these schemes are due to the fact that they minimize the use of WAN in the read and write operations. 
 
-Scondly, in the current implementation, the HDFS client reconstructs the data cells itself after reading one or more parity cells. This can be improved by performing reconstruction of data cells in parallel. We can have a coordinator node in each geo location and whenever an HDFS-EC-GD client prefers a local parity cell read over a remote data cell read, it can inform the coordinator node to initiate the parallel reconstruction of the data. This reconstruction job would be launched by the Coordinator node similar to a Map-Reduce job making sure that all the decoding workers write their output to the HDFS-EC-GD client node. This can dramatically speed up data reconstruction while also minimizing the effect of contrained cpu of the client itself. 
+However greedy heuristics are limited in their impact and can lead to other side effects. In our case, the greedy EC write approach can lead to data localization ie. data getting aggregated on a few local nodes leading to higher loads on them. The ideal solution would be to select datanodes based on solving a linear formulation based on several constraints. However we can not have the ILP solver in the critical path because it would slow down performance tremendously.
+
+Instead, we can have a data movement process running as a background job, which solves this formulation and moves data around to satisfy several constraints. Since this is off the critical path, there are no issues. 
+
+We can also create additional copies of data and parity cells based on some workload prediction. Several systems \cite{iridium}\cite{clarinet} have used this idea before. But none of them do it in a storage-efficient manner. We can perform this data copying in a bounded manner by trading off some of the storage benefits given by EC to achieve better performance. Eg. A customer could change his storage overhead from $1.5\times $ to $2\times $ and create extra copies of cells for improved GD performance.
+
+Secondly, in the current implementation, the HDFS client reconstructs the data cells itself after reading one or more parity cells. This can be improved by performing reconstruction of data cells in parallel. We can have a coordinator node in each geo location and whenever an HDFS-EC-GD client prefers a local parity cell read over a remote data cell read, it can inform the coordinator node to initiate the parallel reconstruction of the data. This reconstruction job would be launched by the Coordinator node similar to a Map-Reduce job making sure that all the decoding workers write their output to the HDFS-EC-GD client node. This can dramatically speed up data reconstruction while also minimizing the effect of constrained cpu of the client itself. 
 
 \section{Related Work}
 Erasure coding is increasingly being preferred over replication to provide reliability in distributed file systems since it has a far smaller storage overhead. For example, Reed-Solomon \cite{RS} is a popular family of codes used in Google\textquotesingle s ColossusFS \cite{colossus}, Facebook\textquotesingle s HDFS \cite{hdfs-raid}, and several other storage systems \cite{rethink, hitchhiker, gpfs}
@@ -261,11 +400,11 @@ There has also been some recent work on a hybrid storage system HACFS \cite{tale
 
   \begin{thebibliography}{1}
 
-  \bibitem{hitchhiker} JRashmi, K. V., et al. "A hitchhiker\textquotesingle s guide to fast and efficient data reconstruction in erasure-coded data centers." ACM SIGCOMM Computer Communication Review. Vol. 44. No. 4. ACM, 2014.
+  \bibitem{hitchhiker} J Rashmi, K. V., et al. "A hitchhiker\textquotesingle s guide to fast and efficient data reconstruction in erasure-coded data centers." ACM SIGCOMM Computer Communication Review. Vol. 44. No. 4. ACM, 2014.
 
-  \bibitem{blog}  http://blog.cloudera.com/blog/2015/09/introduction-to-hdfs-erasure-coding-in-apache-hadoop/
+  \bibitem{cloudera-blog}  http://blog.cloudera.com/blog/2015/09/introduction-to-hdfs-erasure-coding-in-apache-hadoop/
   
-  \bibitem{hdfsec} https://hadoop.apache.org/docs/r3.0.0-alpha1/hadoop-project-dist/hadoop-hdfs/HDFSErasureCoding.html
+  \bibitem{hdfs-ec} https://hadoop.apache.org/docs/r3.0.0-alpha1/hadoop-project-dist/hadoop-hdfs/HDFSErasureCoding.html
 
   \bibitem{tale}Xia, Mingyuan, et al. "A tale of two erasure codes in hdfs." 13th USENIX Conference on File and Storage Technologies (FAST 15). 2015.
   
@@ -281,6 +420,15 @@ cloud file systems: Minimizing I/O for recovery and degraded reads.
   \bibitem{gpfs} SCHMUCK, AND HASKIN - GPFS: A shared-disk file system for large computing clusters. 
   
   \bibitem{azure} HUANG, SIMITCI, XU, OGUS, CA, IDER, GOPALAN, LI, YEKHANI - Erasure coding in Windows Azure Storage
+  
+  \bibitem{iridium} PU, ANANTHANARAYANAN, BODIK, KANDULA, AKELLA, BAHL, AND STOICA - Low Latency Geo-distributed Data Analytics
+  
+  \bibitem{clarinet} VISWANATHAN, ANANTHANARAYANAN, AND AKELLA - Clarinet: WAN-Aware Optimization for Analytics Queries
+  
+  \bibitem{isa-l} Intel ISA-L: https://github.com/01org/isa-l
+  
+  \bibitem{linux-stress} Linux stress tool - https://linux.die.net/man/1/stress
+  
 
   \end{thebibliography}
 
