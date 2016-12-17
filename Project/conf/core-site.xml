@@ -82,5 +82,14 @@
   <value>LINK_AWARENESS</value>
 </property>
 
+<property>
+  <name>net.link.samerack.penalty</name>
+  <value>SAME_RACK_PENALTY</value>
+</property>
+
+<property>
+  <name>net.link.disable.pipeline.sort</name>
+  <value>DISABLE_PIPELINE_SORT</value>
+</property>
 
 </configuration>

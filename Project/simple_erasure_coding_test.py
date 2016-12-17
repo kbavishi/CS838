@@ -13,7 +13,8 @@ if __name__ == '__main__':
     # the striped blocks. Without this, HDFS complains
     nn, rm, slave0, slave1, slave2, slave3, slave4 = sys.argv[1:]
     slaves = [slave0, slave1, slave2, slave3, slave4]
-    nn_shell = hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)[0]
+    nn_shell, _, slave_shells = \
+        hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves)
 
     hadoop_testlib.start_all(nn_shell)
 
@@ -36,18 +37,28 @@ if __name__ == '__main__':
         # files, we pick a size of 1 GB
 
         # Tests for small files
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="write",
                                                number_of_files=1,
                                                file_size='64MB')
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
+        filepath = "/benchmarks/TestDFSIO/io_data/test_io_0"
+        hadoop_testlib.verify_ec_policy(nn_shell, filepath, 3, 2)
+
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="read",
                                                number_of_files=1,
                                                file_size='64MB')
 
         # Tests for big files
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="write",
                                                number_of_files=1,
                                                file_size='1GB')
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
+        filepath = "/benchmarks/TestDFSIO/io_data/test_io_0"
+        hadoop_testlib.verify_ec_policy(nn_shell, filepath, 3, 2)
+
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="read",
                                                number_of_files=1,
                                                file_size='1GB')
 

@@ -31,20 +31,40 @@ if __name__ == '__main__':
     # measurements
     output = ""
     for _ in xrange(10):
+        # Tests for small files
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="write",
+                                               number_of_files=1,
+                                               file_size='64MB')
+        filepath = "/benchmarks/TestDFSIO/io_data/test_io_0"
+        hadoop_testlib.verify_ec_policy(nn_shell, filepath, 3, 2)
+
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="read",
+                                               number_of_files=1,
+                                               file_size='64MB')
+
         # Tests for big files
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="write",
                                                number_of_files=1,
                                                file_size='1GB')
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
+        filepath = "/benchmarks/TestDFSIO/io_data/test_io_0"
+        hadoop_testlib.verify_ec_policy(nn_shell, filepath, 3, 2)
+
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="read",
                                                number_of_files=1,
                                                file_size='1GB')
 
         # After each iteration, just save the results
         hadoop_testlib.save_output(output, "gda_erasure_coding_RS_3_2.txt")
 
+
     hadoop_testlib.cleanup_TestDFSIO(nn_shell)
     hadoop_testlib.stop_all(nn_shell)
     # XXX Seems like you can't unset a policy back to cold replicas
 
     # Dump the output to a txt file so that it can be useful later
-    hadoop_testlib.save_output(output, "gda_erasure_coding_RS_3_2.txt")
+    hadoop_testlib.save_output(output,
+                               "gda_best_read_erasure_coding_RS_3_2.txt")

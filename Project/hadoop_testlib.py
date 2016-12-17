@@ -1,17 +1,22 @@
 import os
-import netaddr
+import re
 import shlex
 import shutil
 import signal
 import sys
 import time
+import netaddr
 import spur
 from termcolor import cprint
 
 USERNAME = "kbavishi"
-HADOOP_TAR_PATH = "http://apache.cs.utah.edu/hadoop/common/hadoop-3.0.0-alpha1/hadoop-3.0.0-alpha1.tar.gz"
-# This is our own tarball with ISA-L support compiled
-HADOOP_TAR_PATH = "https://www.dropbox.com/s/txe6k3gin1uqc80/hadoop-3.0.0-alpha1.tar.gz"
+# Original tarball used (not sure about ISA-L support)
+#HADOOP_TAR_PATH = "http://apache.cs.utah.edu/hadoop/common/hadoop-3.0.0-alpha1/hadoop-3.0.0-alpha1.tar.gz"
+# This is the tarball with greedy EC writes support (ISA-L support compiled in)
+#HADOOP_TAR_PATH = "https://www.dropbox.com/s/1dc2ylj29j9cjv4/hadoop-3.0.0-alpha1.tar.gz"
+# This is the tarball with both greedy EC reads and writes (ISA-L support
+# compiled in)
+HADOOP_TAR_PATH = "https://www.dropbox.com/s/o22gul7mwcx4k51/hadoop-3.0.0-alpha1.tar.gz"
 
 # Issues that may still exist
 # 1. Hosts file may be an issue
@@ -160,6 +165,7 @@ def install_dependencies(shell):
         shell.run("sudo apt-get update")
         shell.run("sudo apt-get install -y openjdk-8-jdk")
         shell.run("sudo apt-get install -y pdsh")
+        shell.run("sudo apt-get install -y stress")
 
 def create_hadoop_dirs(shell):
     """Creates all logging and storage directories needed for running
@@ -201,7 +207,9 @@ def setup_intel_ISA_L(shell):
         shell.run("cd isa-l; ./autogen.sh; ./configure; make; sudo make install",
                   use_bash=True)
 
-def setup_conf_tar(shell, master_ip, link_awareness=False):
+def setup_conf_tar(shell, master_ip, link_awareness=False,
+                   same_rack_penalty=5, parity_comp_cost=10,
+                   disable_pipeline_sort='false'):
     """Copies over the XML conf files to the master"""
 
     # Create a tarball of conf files available locally and send it over.
@@ -215,6 +223,17 @@ def setup_conf_tar(shell, master_ip, link_awareness=False):
             continue
         filepath = os.path.join("conf", filename)
         shell.run("sed -i -e 's/MASTER_IP/%s/g' %s" % (master_ip, filepath))
+
+        # Also plug in values for same rack penalty and whether we want to
+        # disable the pipeline sorting
+        shell.run("sed -i -e 's/SAME_RACK_PENALTY/%s/g' %s" %
+                  (same_rack_penalty, filepath))
+        shell.run("sed -i -e 's/DISABLE_PIPELINE_SORT/%s/g' %s" %
+                  (disable_pipeline_sort, filepath))
+        shell.run("sed -i -e 's/PARITY_COMP_COST/%s/g' %s" %
+                  (parity_comp_cost, filepath))
+
+        # Enable link awareness if it was requested.
         if link_awareness:
             shell.run("sed -i -e "\
             "'s/LINK_AWARENESS/\/users\/kbavishi\/link_awareness.py/g' %s" %
@@ -272,8 +291,26 @@ def kill_old_instances(shell):
     except:
         pass
 
+def setup_cpu_governor(shell, governor):
+    """Set a specific CPU scaling governor.
+    The recognized governors are: conservative, ondemand, userspace, powersave,
+    performance.
+    """
+    # First check if the necessary packages have been installed
+    pkgs = ["linux-tools-common", "linux-tools-3.13.0-100-generic",
+            "linux-cloud-tools-3.13.0-100-generic"]
+    try:
+        for pkg in pkgs:
+            shell.run("dpkg -s %s > /dev/null" % pkg, use_bash=True)
+    except:
+        shell.run("sudo apt-get -y install %s" % " ".join(pkgs))
+
+    shell.run("sudo cpupower frequency-set -g %s" % governor)
+
 def setup_hadoop(shell, master_ip, master_shell=None,
                  allow_public_ip=False, link_awareness=False,
+                 same_rack_penalty=5, parity_comp_cost=10,
+                 disable_pipeline_sort='false',
                  gd_rack=None):
     """Sets up everything that is needed to run Hadoop on the cluster"""
 
@@ -300,7 +337,8 @@ def setup_hadoop(shell, master_ip, master_shell=None,
         # Copy over link awareness script
         setup_link_awareness(shell, gd_rack)
 
-    setup_conf_tar(shell, master_ip, link_awareness)
+    setup_conf_tar(shell, master_ip, link_awareness, same_rack_penalty,
+                   parity_comp_cost, disable_pipeline_sort)
 
     # Copy over the run.sh script for running daemons
     setup_run_sh(shell)
@@ -314,6 +352,11 @@ def setup_hadoop(shell, master_ip, master_shell=None,
     # Download the Hadoop tarball if it doesn't exist
     setup_hadoop_tar(shell, master_shell=master_shell,
                      allow_public_ip=allow_public_ip)
+
+    # Setup high performance governor. This is extremely important to get
+    # uniform results. Otherwise we may observe strange results like EC with
+    # parity computation getting better throughput than EC with zero computation.
+    setup_cpu_governor(shell, "performance")
 
 def setup_passwordless(nn_shell, slave_shells, allow_public_ip=False):
     """Sets up passwordless access between master and slave nodes. Needed for
@@ -402,8 +445,33 @@ def get_wan_netstats(shell):
 
     return wan_output
 
-def run_TestDFSIO(shell, result_file="results.out", test_type="write",
-                  number_of_files=1, file_size='1MB'):
+def drop_caches(shells):
+    for shell in shells:
+        shell.run("echo 3 | sudo tee /proc/sys/vm/drop_caches", use_bash=True)
+
+def run_stress_procs(shells, load=0.5):
+    # Kill any previously running stress procs
+    kill_stress_procs(shells)
+
+    for shell in shells:
+        cmd = "cat /proc/cpuinfo | grep processor | wc -l"
+        cores = int(shell.run(cmd).output)
+        shell.spawn("stress --cpu %d" % int(load*cores))
+
+def kill_stress_procs(shells):
+    for shell in shells:
+        shell.run("sudo pkill stress", allow_error=True)
+
+def verify_ec_policy(shell, path, dataBlkNum, parityBlkNum):
+    blockLine = "BP-\S* len=\d+ Live_repl=(\d+)"
+    output = shell.run_hadoop_cmd("hdfs fsck %s -files -blocks" % path).output
+    replicas = re.findall(blockLine, output)
+    print replicas
+    assert all(map(lambda r: int(r) == (dataBlkNum + parityBlkNum), replicas)), \
+        "Some blocks do not have the necessary number of replicas"
+
+def run_TestDFSIO(shell, slave_shells, result_file="results.out",
+                  test_type="write", number_of_files=1, file_size='1MB'):
     """
     Run TestDFSIO with various options. Assumes that start_all has been run
     before. Check out the TestDFSIO documentation for more info about the test
@@ -416,6 +484,10 @@ def run_TestDFSIO(shell, result_file="results.out", test_type="write",
     cmd += " -%s" % test_type
     cmd += " -nrFiles %s" % number_of_files
     cmd += " -size %s" % file_size
+
+    # Drop VM caches. This is extremely important to rule out any effects due to
+    # caching
+    drop_caches([shell] + slave_shells)
 
     wan_usage_before = get_wan_netstats(shell)
     output = shell.run_hadoop_cmd(cmd).output
@@ -478,16 +550,32 @@ def parse_host(host_str):
     return host, port
 
 def setup_hadoop_testbase(namenode, resourcemgr, slaves,
-                          allow_public_ip=False, link_awareness=False):
+                          allow_public_ip=False, link_awareness=False,
+                          same_rack_penalty=5, parity_comp_cost=10,
+                          disable_pipeline_sort='false'):
     """Sets up everything needed for Hadoop to run on the cluster.
     Parameters:
 
     @namenode: String of the form <hostname:port> containing NN info
+
     @resourcemgr: String of the form <hostname:port> containing RM info
+
     @slaves: List of string of the form <hostname:port> containing slave info
+
     @allow_public_ip: Set to True if you are running Hadoop on a GDA setting
+
     @link_awareness: Set to True if you want the link awareness script to be
     installed.
+
+    @same_rack_penalty: Set to an integer to set a custom same rack penalty.
+    Useful if you want it to deliberately ignore GDA greedy heuristics.
+
+    @parity_comp_cost: Set to an integer to set a custom parity computation
+    cost.
+
+    @disable_pipeline_sort: Set to False if you want to disable the pipeline
+    sort algorithm while selecting datanodes. This is very useful if you want to
+    avoid selecting distant nodes just for parity chunks and not data chunks.
 
     Returns the master shell for running testcases"""
 
@@ -539,6 +627,9 @@ def setup_hadoop_testbase(namenode, resourcemgr, slaves,
     # XXX Ignore RM for now
     for shell in [nn_shell,]:
         setup_hadoop(shell, master_ip, link_awareness=link_awareness,
+                     same_rack_penalty=same_rack_penalty,
+                     parity_comp_cost=parity_comp_cost,
+                     disable_pipeline_sort=disable_pipeline_sort,
                      gd_rack=gd_rack)
 
     # Setup for slaves is a little different because they can use the master for
@@ -548,6 +639,9 @@ def setup_hadoop_testbase(namenode, resourcemgr, slaves,
         setup_hadoop(shell, master_ip, master_shell=nn_shell,
                      allow_public_ip=allow_public_ip,
                      link_awareness=link_awareness,
+                     same_rack_penalty=same_rack_penalty,
+                     parity_comp_cost=parity_comp_cost,
+                     disable_pipeline_sort=disable_pipeline_sort,
                      gd_rack=gd_rack)
 
     # Format the NameNode. This is needed only once

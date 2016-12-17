@@ -86,12 +86,12 @@
 -->
 <property>
 	<name>dfs.client.slow.io.warning.threshold.ms</name>
-	<value>120000</value>
+	<value>240000</value>
 </property>
 
 <property>
 	<name>dfs.datanode.ec.reconstruction.stripedread.timeout.millis</name>
-	<value>120000</value>
+	<value>240000</value>
 </property>
 
 <property>
@@ -102,6 +102,11 @@
 <property>
   <name>dfs.block.placement.ec.classname</name>
   <value>org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicyRackFaultTolerantGDA</value>
+</property>
+
+<property>
+  <name>dfs.client.parity.comp.cost</name>
+  <value>PARITY_COMP_COST</value>
 </property>
 
 </configuration>

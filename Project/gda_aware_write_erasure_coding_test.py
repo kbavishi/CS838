@@ -14,7 +14,7 @@ if __name__ == '__main__':
     nn_shell, _, slave_shells = \
         hadoop_testlib.setup_hadoop_testbase(nn, rm, slaves,
                                              allow_public_ip=True,
-                                             link_awareness=True)
+                                             link_awareness=False)
 
     hadoop_testlib.start_all(nn_shell)
 
@@ -30,34 +30,21 @@ if __name__ == '__main__':
     # measurements
     output = ""
     for _ in xrange(10):
-        # Run tests for both large and small files.
-        # According to the HDFS scalability paper by Shvachko, the average file
-        # size in Yahoo!  clusters is 1.5 blocks. So for our definition of
-        # "small files", we pick a size of 1 block ie. 64 MB. Whereas for large
-        # files, we pick a size of 1 GB
-
-        # Tests for small files
-        #output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
-        #                                       number_of_files=1,
-        #                                       file_size='64MB')
-        #output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
-        #                                       number_of_files=1,
-        #                                       file_size='64MB')
-
         # Tests for big files
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="write",
+        output += hadoop_testlib.run_TestDFSIO(nn_shell, slave_shells,
+                                               test_type="write",
                                                number_of_files=1,
                                                file_size='1GB')
-        output += hadoop_testlib.run_TestDFSIO(nn_shell, test_type="read",
-                                               number_of_files=1,
-                                               file_size='1GB')
+        filepath = "/benchmarks/TestDFSIO/io_data/test_io_0"
+        hadoop_testlib.verify_ec_policy(nn_shell, filepath, 3, 2)
 
         # After each iteration, just save the results
-        hadoop_testlib.save_output(output, "gda_aware_erasure_coding_RS_3_2.txt")
+        hadoop_testlib.save_output(output,
+                                   "gda_aware_write_erasure_coding_RS_3_2.txt")
 
     hadoop_testlib.cleanup_TestDFSIO(nn_shell)
     hadoop_testlib.stop_all(nn_shell)
     # XXX Seems like you can't unset a policy back to cold replicas
 
     # Dump the output to a txt file so that it can be useful later
-    hadoop_testlib.save_output(output, "gda_aware_erasure_coding_RS_3_2.txt")
+    hadoop_testlib.save_output(output, "gda_aware_write_erasure_coding_RS_3_2.txt")
