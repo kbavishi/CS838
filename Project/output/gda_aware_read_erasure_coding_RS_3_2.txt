@@ -1,0 +1,1398 @@
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:35:31,135 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:35:31,650 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:35:31,650 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:35:31,651 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:35:31,651 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:35:33,358 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:35:35,100 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:35:36,100 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:35:36,121 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:35:36,432 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:35:36,622 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:35:36,622 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:35:36,623 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:35:38,342 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:36:48,586 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741826_1003
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.2:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:36:48,593 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741826_1003
+2016-12-11 21:36:48,609 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.2:9866,DS-c852cac7-ad79-4b26-ba31-ad0a4e670826,DISK]
+2016-12-11 21:37:53,765 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741827_1004
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.4:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:37:53,767 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741827_1004
+2016-12-11 21:37:53,775 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.4:9866,DS-a5c8b783-b1a4-4761-bda0-9fc2a516a375,DISK]
+2016-12-11 21:37:54,337 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:37:54,360 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:37:54,361 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:37:55,009 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0001
+2016-12-11 21:37:55,935 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0001
+2016-12-11 21:37:56,038 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0001/
+2016-12-11 21:37:56,040 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0001
+2016-12-11 21:38:08,194 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0001 running in uber mode : false
+2016-12-11 21:38:08,202 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:38:23,289 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 67% reduce 0%
+2016-12-11 21:40:38,869 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:40:48,892 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:40:49,899 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0001 completed successfully
+2016-12-11 21:40:49,963 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=94
+		FILE: Number of bytes written=329607
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=459
+		HDFS: Number of bytes written=1073741902
+		HDFS: Number of read operations=9
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=3
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=741700
+		Total time spent by all reduces in occupied slots (ms)=35905
+		Total time spent by all map tasks (ms)=148340
+		Total time spent by all reduce tasks (ms)=7181
+		Total vcore-milliseconds taken by all map tasks=148340
+		Total vcore-milliseconds taken by all reduce tasks=7181
+		Total megabyte-milliseconds taken by all map tasks=759500800
+		Total megabyte-milliseconds taken by all reduce tasks=36766720
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=78
+		Map output materialized bytes=94
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=94
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=505
+		CPU time spent (ms)=13010
+		Physical memory (bytes) snapshot=2449981440
+		Virtual memory (bytes) snapshot=13672120320
+		Total committed heap usage (bytes)=4439146496
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=78
+2016-12-11 21:40:49,975 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_write/part-00000
+2016-12-11 21:40:50,162 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : write
+2016-12-11 21:40:50,164 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:40:50 MST 2016
+2016-12-11 21:40:50,164 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:40:50,164 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:40:50,164 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 7.25
+2016-12-11 21:40:50,164 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0
+2016-12-11 21:40:50,165 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 7.25
+2016-12-11 21:40:50,165 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0
+2016-12-11 21:40:50,165 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 314.86
+2016-12-11 21:40:50,165 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 379751816 bytes
+WAN TX for 128.110.153.94: 7743075 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:41:08,564 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:41:08,578 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:41:08,578 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:41:08,579 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:41:08,579 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:41:10,629 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:41:11,260 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:41:12,205 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:41:12,233 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:41:12,443 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:41:12,606 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:41:12,607 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:41:12,608 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:41:13,815 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:42:24,027 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741840_1022
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.4:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:42:24,035 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741840_1022
+2016-12-11 21:42:24,051 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.4:9866,DS-a5c8b783-b1a4-4761-bda0-9fc2a516a375,DISK]
+2016-12-11 21:43:29,246 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741841_1023
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.2:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:43:29,248 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741841_1023
+2016-12-11 21:43:29,258 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.2:9866,DS-c852cac7-ad79-4b26-ba31-ad0a4e670826,DISK]
+2016-12-11 21:43:29,773 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:43:29,794 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:43:29,794 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:43:30,409 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0002
+2016-12-11 21:43:30,682 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0002
+2016-12-11 21:43:30,716 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0002/
+2016-12-11 21:43:30,717 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0002
+2016-12-11 21:43:42,862 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0002 running in uber mode : false
+2016-12-11 21:43:42,866 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:43:49,925 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:43:58,979 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:44:00,996 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0002 completed successfully
+2016-12-11 21:44:01,059 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=93
+		FILE: Number of bytes written=329601
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=77
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=24490
+		Total time spent by all reduces in occupied slots (ms)=33050
+		Total time spent by all map tasks (ms)=4898
+		Total time spent by all reduce tasks (ms)=6610
+		Total vcore-milliseconds taken by all map tasks=4898
+		Total vcore-milliseconds taken by all reduce tasks=6610
+		Total megabyte-milliseconds taken by all map tasks=25077760
+		Total megabyte-milliseconds taken by all reduce tasks=33843200
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=77
+		Map output materialized bytes=93
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=93
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=233
+		CPU time spent (ms)=4430
+		Physical memory (bytes) snapshot=2061938688
+		Virtual memory (bytes) snapshot=13652373504
+		Total committed heap usage (bytes)=4462739456
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=77
+2016-12-11 21:44:01,075 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:44:01,132 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:44:01,133 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:44:01 MST 2016
+2016-12-11 21:44:01,134 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:44:01,134 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:44:01,134 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 421.23
+2016-12-11 21:44:01,134 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:44:01,134 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 421.23
+2016-12-11 21:44:01,135 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.06
+2016-12-11 21:44:01,135 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 169.8
+2016-12-11 21:44:01,135 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2376254 bytes
+WAN TX for 128.110.153.94: 95969 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:44:14,442 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:44:14,453 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:44:14,453 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:44:14,453 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:44:14,453 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:44:15,987 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:44:16,985 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:44:17,893 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:44:17,927 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:44:18,310 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:44:18,484 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:44:18,484 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:44:18,485 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:44:19,696 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:45:29,914 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741853_1037
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.3:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:45:29,920 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741853_1037
+2016-12-11 21:45:29,942 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.3:9866,DS-96f7c99f-46d6-43db-8f5b-cfa274ae1ce2,DISK]
+2016-12-11 21:46:35,125 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741854_1038
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.4:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:46:35,125 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741854_1038
+2016-12-11 21:46:35,138 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.4:9866,DS-a5c8b783-b1a4-4761-bda0-9fc2a516a375,DISK]
+2016-12-11 21:46:35,666 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:46:35,699 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:46:35,700 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:46:36,336 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0003
+2016-12-11 21:46:36,616 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0003
+2016-12-11 21:46:36,662 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0003/
+2016-12-11 21:46:36,664 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0003
+2016-12-11 21:46:46,818 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0003 running in uber mode : false
+2016-12-11 21:46:46,829 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:46:57,929 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:47:05,974 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:47:06,986 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0003 completed successfully
+2016-12-11 21:47:07,044 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=94
+		FILE: Number of bytes written=329603
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=78
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=43685
+		Total time spent by all reduces in occupied slots (ms)=30585
+		Total time spent by all map tasks (ms)=8737
+		Total time spent by all reduce tasks (ms)=6117
+		Total vcore-milliseconds taken by all map tasks=8737
+		Total vcore-milliseconds taken by all reduce tasks=6117
+		Total megabyte-milliseconds taken by all map tasks=44733440
+		Total megabyte-milliseconds taken by all reduce tasks=31319040
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=78
+		Map output materialized bytes=94
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=94
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=222
+		CPU time spent (ms)=4860
+		Physical memory (bytes) snapshot=2067079168
+		Virtual memory (bytes) snapshot=13650255872
+		Total committed heap usage (bytes)=4451205120
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=78
+2016-12-11 21:47:07,057 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:47:07,108 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:47:07 MST 2016
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 432.25
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:47:07,115 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 432.25
+2016-12-11 21:47:07,116 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.03
+2016-12-11 21:47:07,116 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 170.06
+2016-12-11 21:47:07,116 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2372225 bytes
+WAN TX for 128.110.153.94: 95058 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:47:21,151 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:47:21,192 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:47:21,192 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:47:21,192 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:47:21,192 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:47:22,819 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:47:23,421 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:47:24,338 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:47:24,364 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:47:24,676 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:47:24,851 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:47:24,851 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:47:24,852 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:47:26,106 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:48:36,320 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741867_1053
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.3:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:48:36,327 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741867_1053
+2016-12-11 21:48:36,348 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.3:9866,DS-96f7c99f-46d6-43db-8f5b-cfa274ae1ce2,DISK]
+2016-12-11 21:49:41,542 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741868_1054
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:49:41,544 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741868_1054
+2016-12-11 21:49:41,556 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 21:49:42,089 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:49:42,119 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:49:42,120 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:49:42,743 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0004
+2016-12-11 21:49:43,023 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0004
+2016-12-11 21:49:43,051 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0004/
+2016-12-11 21:49:43,052 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0004
+2016-12-11 21:49:53,679 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0004 running in uber mode : false
+2016-12-11 21:49:53,685 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:50:00,746 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:50:09,805 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:50:11,825 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0004 completed successfully
+2016-12-11 21:50:11,893 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=23850
+		Total time spent by all reduces in occupied slots (ms)=32070
+		Total time spent by all map tasks (ms)=4770
+		Total time spent by all reduce tasks (ms)=6414
+		Total vcore-milliseconds taken by all map tasks=4770
+		Total vcore-milliseconds taken by all reduce tasks=6414
+		Total megabyte-milliseconds taken by all map tasks=24422400
+		Total megabyte-milliseconds taken by all reduce tasks=32839680
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=236
+		CPU time spent (ms)=4550
+		Physical memory (bytes) snapshot=2051481600
+		Virtual memory (bytes) snapshot=13649854464
+		Total committed heap usage (bytes)=4428136448
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 21:50:11,910 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:50:11,956 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:50:11 MST 2016
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 421.05
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 421.05
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.01
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 168.47
+2016-12-11 21:50:11,957 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2375873 bytes
+WAN TX for 128.110.153.94: 94342 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:50:24,916 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:50:24,930 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:50:24,931 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:50:24,931 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:50:24,931 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:50:26,507 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:50:27,139 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:50:28,177 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:50:28,202 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:50:28,490 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:50:28,705 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:50:28,705 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:50:28,706 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:50:29,972 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:51:40,177 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741880_1068
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.2:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:51:40,182 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741880_1068
+2016-12-11 21:51:40,193 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.2:9866,DS-c852cac7-ad79-4b26-ba31-ad0a4e670826,DISK]
+2016-12-11 21:52:45,374 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741881_1069
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.3:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:52:45,374 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741881_1069
+2016-12-11 21:52:45,388 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.3:9866,DS-96f7c99f-46d6-43db-8f5b-cfa274ae1ce2,DISK]
+2016-12-11 21:52:45,903 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:52:45,919 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:52:45,920 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:52:46,533 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0005
+2016-12-11 21:52:46,811 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0005
+2016-12-11 21:52:46,846 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0005/
+2016-12-11 21:52:46,847 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0005
+2016-12-11 21:52:57,572 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0005 running in uber mode : false
+2016-12-11 21:52:57,577 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:53:04,640 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:53:13,686 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:53:14,706 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0005 completed successfully
+2016-12-11 21:53:14,768 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=24400
+		Total time spent by all reduces in occupied slots (ms)=31770
+		Total time spent by all map tasks (ms)=4880
+		Total time spent by all reduce tasks (ms)=6354
+		Total vcore-milliseconds taken by all map tasks=4880
+		Total vcore-milliseconds taken by all reduce tasks=6354
+		Total megabyte-milliseconds taken by all map tasks=24985600
+		Total megabyte-milliseconds taken by all reduce tasks=32532480
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=306
+		CPU time spent (ms)=4540
+		Physical memory (bytes) snapshot=2064928768
+		Virtual memory (bytes) snapshot=13645537280
+		Total committed heap usage (bytes)=4473225216
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 21:53:14,782 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:53:14,830 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:53:14,832 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:53:14 MST 2016
+2016-12-11 21:53:14,832 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:53:14,832 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:53:14,832 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 419.84
+2016-12-11 21:53:14,832 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:53:14,833 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 419.84
+2016-12-11 21:53:14,833 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.05
+2016-12-11 21:53:14,833 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 167.63
+2016-12-11 21:53:14,833 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2365675 bytes
+WAN TX for 128.110.153.94: 100033 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:53:30,970 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:53:30,983 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:53:30,984 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:53:30,984 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:53:30,984 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:53:32,558 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:53:33,073 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:53:34,049 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:53:34,082 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:53:34,355 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:53:34,538 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:53:34,539 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:53:34,539 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:53:35,843 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:54:46,053 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741893_1083
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.3:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:54:46,074 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741893_1083
+2016-12-11 21:54:46,085 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.3:9866,DS-96f7c99f-46d6-43db-8f5b-cfa274ae1ce2,DISK]
+2016-12-11 21:55:51,268 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741894_1084
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:55:51,268 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741894_1084
+2016-12-11 21:55:51,286 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 21:55:51,801 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:55:51,816 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:55:51,817 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:55:52,467 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0006
+2016-12-11 21:55:52,773 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0006
+2016-12-11 21:55:52,847 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0006/
+2016-12-11 21:55:52,849 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0006
+2016-12-11 21:56:03,164 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0006 running in uber mode : false
+2016-12-11 21:56:03,169 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:56:14,246 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:56:19,276 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:56:20,285 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0006 completed successfully
+2016-12-11 21:56:20,347 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=44355
+		Total time spent by all reduces in occupied slots (ms)=11050
+		Total time spent by all map tasks (ms)=8871
+		Total time spent by all reduce tasks (ms)=2210
+		Total vcore-milliseconds taken by all map tasks=8871
+		Total vcore-milliseconds taken by all reduce tasks=2210
+		Total megabyte-milliseconds taken by all map tasks=45419520
+		Total megabyte-milliseconds taken by all reduce tasks=11315200
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=281
+		CPU time spent (ms)=4140
+		Physical memory (bytes) snapshot=2044551168
+		Virtual memory (bytes) snapshot=13646647296
+		Total committed heap usage (bytes)=4420796416
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 21:56:20,362 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:56:20,410 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:56:20,412 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:56:20 MST 2016
+2016-12-11 21:56:20,412 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:56:20,412 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:56:20,412 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 413.07
+2016-12-11 21:56:20,412 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:56:20,413 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 413.07
+2016-12-11 21:56:20,413 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.04
+2016-12-11 21:56:20,413 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 167.27
+2016-12-11 21:56:20,413 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2365155 bytes
+WAN TX for 128.110.153.94: 97705 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:56:33,598 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:56:33,639 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:56:33,639 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:56:33,639 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:56:33,639 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:56:35,156 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:56:35,876 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:56:36,982 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:56:37,009 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:56:37,319 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:56:37,514 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:56:37,515 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:56:37,518 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:56:38,786 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 21:57:48,946 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741906_1098
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:57:48,959 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741906_1098
+2016-12-11 21:57:48,971 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 21:58:54,167 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741907_1099
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.2:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 21:58:54,169 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741907_1099
+2016-12-11 21:58:54,178 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.2:9866,DS-c852cac7-ad79-4b26-ba31-ad0a4e670826,DISK]
+2016-12-11 21:58:54,687 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 21:58:54,708 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 21:58:54,709 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 21:58:55,323 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0007
+2016-12-11 21:58:55,612 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0007
+2016-12-11 21:58:55,635 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0007/
+2016-12-11 21:58:55,636 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0007
+2016-12-11 21:59:06,071 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0007 running in uber mode : false
+2016-12-11 21:59:06,078 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 21:59:17,163 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 21:59:21,186 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 21:59:22,201 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0007 completed successfully
+2016-12-11 21:59:22,265 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=94
+		FILE: Number of bytes written=329603
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=78
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=43830
+		Total time spent by all reduces in occupied slots (ms)=10975
+		Total time spent by all map tasks (ms)=8766
+		Total time spent by all reduce tasks (ms)=2195
+		Total vcore-milliseconds taken by all map tasks=8766
+		Total vcore-milliseconds taken by all reduce tasks=2195
+		Total megabyte-milliseconds taken by all map tasks=44881920
+		Total megabyte-milliseconds taken by all reduce tasks=11238400
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=78
+		Map output materialized bytes=94
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=94
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=257
+		CPU time spent (ms)=4270
+		Physical memory (bytes) snapshot=2048516096
+		Virtual memory (bytes) snapshot=13644627968
+		Total committed heap usage (bytes)=4431806464
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=78
+2016-12-11 21:59:22,277 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 21:59:22,320 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 21:59:22 MST 2016
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 442.91
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 442.91
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.08
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 166.39
+2016-12-11 21:59:22,328 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2364605 bytes
+WAN TX for 128.110.153.94: 88855 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 21:59:35,634 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 21:59:35,681 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 21:59:35,681 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 21:59:35,681 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 21:59:35,681 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 21:59:37,152 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 21:59:37,794 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 21:59:38,760 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:59:38,781 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:59:39,072 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:59:39,298 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 21:59:39,299 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 21:59:39,299 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 21:59:40,548 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 22:00:50,758 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741919_1113
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.3:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:00:50,767 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741919_1113
+2016-12-11 22:00:50,778 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.3:9866,DS-96f7c99f-46d6-43db-8f5b-cfa274ae1ce2,DISK]
+2016-12-11 22:01:55,957 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741920_1114
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:01:55,957 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741920_1114
+2016-12-11 22:01:55,980 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 22:01:56,465 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 22:01:56,487 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 22:01:56,490 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 22:01:57,119 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0008
+2016-12-11 22:01:57,422 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0008
+2016-12-11 22:01:57,451 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0008/
+2016-12-11 22:01:57,453 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0008
+2016-12-11 22:02:07,735 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0008 running in uber mode : false
+2016-12-11 22:02:07,742 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 22:02:18,822 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 22:02:23,866 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 22:02:24,879 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0008 completed successfully
+2016-12-11 22:02:24,943 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=44000
+		Total time spent by all reduces in occupied slots (ms)=11100
+		Total time spent by all map tasks (ms)=8800
+		Total time spent by all reduce tasks (ms)=2220
+		Total vcore-milliseconds taken by all map tasks=8800
+		Total vcore-milliseconds taken by all reduce tasks=2220
+		Total megabyte-milliseconds taken by all map tasks=45056000
+		Total megabyte-milliseconds taken by all reduce tasks=11366400
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=259
+		CPU time spent (ms)=4250
+		Physical memory (bytes) snapshot=2044899328
+		Virtual memory (bytes) snapshot=13651873792
+		Total committed heap usage (bytes)=4438097920
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 22:02:24,964 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 22:02:25,014 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 22:02:25 MST 2016
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 430.98
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 430.98
+2016-12-11 22:02:25,016 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.07
+2016-12-11 22:02:25,017 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 167.15
+2016-12-11 22:02:25,017 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2356276 bytes
+WAN TX for 128.110.153.94: 89155 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 22:02:38,298 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 22:02:38,305 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 22:02:38,305 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 22:02:38,305 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 22:02:38,305 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 22:02:39,797 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 22:02:40,404 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 22:02:41,686 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:02:41,714 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:02:42,034 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:02:42,218 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:02:42,218 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:02:42,219 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:02:43,458 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 22:03:53,666 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741932_1128
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:03:53,690 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741932_1128
+2016-12-11 22:03:53,710 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 22:04:08,880 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741933_1129
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.2:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:04:08,881 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741933_1129
+2016-12-11 22:04:08,896 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.2:9866,DS-c852cac7-ad79-4b26-ba31-ad0a4e670826,DISK]
+2016-12-11 22:04:09,393 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 22:04:09,415 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 22:04:09,416 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 22:04:10,059 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0009
+2016-12-11 22:04:10,374 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0009
+2016-12-11 22:04:10,408 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0009/
+2016-12-11 22:04:10,410 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0009
+2016-12-11 22:04:20,846 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0009 running in uber mode : false
+2016-12-11 22:04:20,849 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 22:04:31,919 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 22:04:36,949 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 22:04:37,962 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0009 completed successfully
+2016-12-11 22:04:38,025 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=44595
+		Total time spent by all reduces in occupied slots (ms)=11155
+		Total time spent by all map tasks (ms)=8919
+		Total time spent by all reduce tasks (ms)=2231
+		Total vcore-milliseconds taken by all map tasks=8919
+		Total vcore-milliseconds taken by all reduce tasks=2231
+		Total megabyte-milliseconds taken by all map tasks=45665280
+		Total megabyte-milliseconds taken by all reduce tasks=11422720
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=272
+		CPU time spent (ms)=4450
+		Physical memory (bytes) snapshot=2051444736
+		Virtual memory (bytes) snapshot=13651116032
+		Total committed heap usage (bytes)=4460118016
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 22:04:38,039 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 22:04:38,091 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 22:04:38 MST 2016
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 426.49
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 426.49
+2016-12-11 22:04:38,093 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.04
+2016-12-11 22:04:38,094 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 117.62
+2016-12-11 22:04:38,094 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2328754 bytes
+WAN TX for 128.110.153.94: 79748 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 22:04:51,111 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 22:04:51,159 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 22:04:51,159 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 22:04:51,159 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 22:04:51,159 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 22:04:52,606 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 22:04:53,209 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 22:04:54,183 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:04:54,216 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:04:54,444 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:04:54,616 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:04:54,616 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:04:54,617 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:04:56,153 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 22:06:06,379 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741945_1143
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.4:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:06:06,389 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741945_1143
+2016-12-11 22:06:06,402 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.4:9866,DS-a5c8b783-b1a4-4761-bda0-9fc2a516a375,DISK]
+2016-12-11 22:07:11,590 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741946_1144
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:07:11,591 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741946_1144
+2016-12-11 22:07:11,609 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 22:07:12,124 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 22:07:12,147 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 22:07:12,147 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 22:07:12,778 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0010
+2016-12-11 22:07:13,058 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0010
+2016-12-11 22:07:13,090 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0010/
+2016-12-11 22:07:13,091 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0010
+2016-12-11 22:07:23,508 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0010 running in uber mode : false
+2016-12-11 22:07:23,513 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 22:07:34,618 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 22:07:44,674 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 22:07:45,688 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0010 completed successfully
+2016-12-11 22:07:45,747 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=95
+		FILE: Number of bytes written=329605
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=79
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=44990
+		Total time spent by all reduces in occupied slots (ms)=34435
+		Total time spent by all map tasks (ms)=8998
+		Total time spent by all reduce tasks (ms)=6887
+		Total vcore-milliseconds taken by all map tasks=8998
+		Total vcore-milliseconds taken by all reduce tasks=6887
+		Total megabyte-milliseconds taken by all map tasks=46069760
+		Total megabyte-milliseconds taken by all reduce tasks=35261440
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=79
+		Map output materialized bytes=95
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=95
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=252
+		CPU time spent (ms)=4590
+		Physical memory (bytes) snapshot=2068201472
+		Virtual memory (bytes) snapshot=13655629824
+		Total committed heap usage (bytes)=4414504960
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=79
+2016-12-11 22:07:45,757 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 22:07:45,803 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 22:07:45,805 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 22:07:45 MST 2016
+2016-12-11 22:07:45,805 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 22:07:45,805 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 22:07:45,805 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 446.19
+2016-12-11 22:07:45,810 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 22:07:45,810 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 446.19
+2016-12-11 22:07:45,810 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.07
+2016-12-11 22:07:45,810 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 172.54
+2016-12-11 22:07:45,810 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2361531 bytes
+WAN TX for 128.110.153.94: 92455 bytes
+setting variables:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_LOG_DIR=/users/kbavishi/logs/hadoop
+HADOOP_CONF_DIR=/users/kbavishi/conf
+HADOOP_USER_CLASSPATH_FIRST=1
+HADOOP_COMMON_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HDFS_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_YARN_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HADOOP_BIN_PATH=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_SBIN=/users/kbavishi/software/hadoop-3.0.0-alpha1/bin
+HADOOP_MAPRED_HOME=/users/kbavishi/software/hadoop-3.0.0-alpha1
+HIVE_HOME=/users/kbavishi/software/hive-1.2.1
+TEZ_CONF_DIR=/users/kbavishi/software/conf
+TEZ_JARS=/users/kbavishi/software/tez-0.7.1-SNAPSHOT-minimal
+2016-12-11 22:07:58,727 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(745)) - TestDFSIO.1.8
+2016-12-11 22:07:58,735 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(800)) - nrFiles = 1
+2016-12-11 22:07:58,735 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(801)) - nrBytes (MB) = 1024.0
+2016-12-11 22:07:58,735 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(802)) - bufferSize = 1000000
+2016-12-11 22:07:58,735 INFO  [main] fs.TestDFSIO (TestDFSIO.java:run(805)) - baseDir = /benchmarks/TestDFSIO
+2016-12-11 22:08:00,299 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(290)) - creating control file: 1073741824 bytes, 1 files
+2016-12-11 22:08:00,928 INFO  [main] fs.TestDFSIO (TestDFSIO.java:createControlFile(312)) - created control files for: 1 files
+2016-12-11 22:08:01,910 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:08:01,941 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:08:02,218 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:08:02,378 INFO  [main] impl.TimelineClientImpl (TimelineClientImpl.java:serviceInit(343)) - Timeline service address: 10.10.1.1:8188
+2016-12-11 22:08:02,379 INFO  [main] client.RMProxy (RMProxy.java:newProxyInstance(125)) - Connecting to ResourceManager at /10.10.1.1:8032
+2016-12-11 22:08:02,379 INFO  [main] client.AHSProxy (AHSProxy.java:createAHSProxy(42)) - Connecting to Application History server at /10.10.1.1:10200
+2016-12-11 22:08:03,593 INFO  [main] mapred.FileInputFormat (FileInputFormat.java:listStatus(256)) - Total input files to process : 1
+2016-12-11 22:09:13,804 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741959_1159
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.4:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:09:13,819 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741959_1159
+2016-12-11 22:09:13,834 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.4:9866,DS-a5c8b783-b1a4-4761-bda0-9fc2a516a375,DISK]
+2016-12-11 22:10:19,020 INFO  [Thread-20] hdfs.DataStreamer (DataStreamer.java:createBlockOutputStream(1622)) - Exception in createBlockOutputStream blk_1073741960_1160
+java.io.IOException: Got error, status=ERROR, status message , ack with firstBadLink as 10.10.1.5:9866
+	at org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil.checkBlockOpStatus(DataTransferProtoUtil.java:121)
+	at org.apache.hadoop.hdfs.DataStreamer.createBlockOutputStream(DataStreamer.java:1614)
+	at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1518)
+	at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:602)
+2016-12-11 22:10:19,021 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1521)) - Abandoning BP-1798135268-128.104.222.179-1481517229226:blk_1073741960_1160
+2016-12-11 22:10:19,033 WARN  [Thread-20] hdfs.DataStreamer (DataStreamer.java:nextBlockOutputStream(1526)) - Excluding datanode DatanodeInfoWithStorage[10.10.1.5:9866,DS-457d0207-29ab-4240-bf73-6e73c07b616c,DISK]
+2016-12-11 22:10:19,531 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(205)) - number of splits:1
+2016-12-11 22:10:19,558 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2016-12-11 22:10:19,559 INFO  [main] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(1238)) - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2016-12-11 22:10:20,184 INFO  [main] mapreduce.JobSubmitter (JobSubmitter.java:printTokens(302)) - Submitting tokens for job: job_1481517294559_0011
+2016-12-11 22:10:20,505 INFO  [main] impl.YarnClientImpl (YarnClientImpl.java:submitApplication(288)) - Submitted application application_1481517294559_0011
+2016-12-11 22:10:20,533 INFO  [main] mapreduce.Job (Job.java:submit(1348)) - The url to track the job: http://namenode-lan:8088/proxy/application_1481517294559_0011/
+2016-12-11 22:10:20,536 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1393)) - Running job: job_1481517294559_0011
+2016-12-11 22:10:30,855 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1414)) - Job job_1481517294559_0011 running in uber mode : false
+2016-12-11 22:10:30,860 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 0% reduce 0%
+2016-12-11 22:10:41,954 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 0%
+2016-12-11 22:10:45,980 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1421)) -  map 100% reduce 100%
+2016-12-11 22:10:46,999 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1432)) - Job job_1481517294559_0011 completed successfully
+2016-12-11 22:10:47,057 INFO  [main] mapreduce.Job (Job.java:monitorAndPrintJob(1439)) - Counters: 49
+	File System Counters
+		FILE: Number of bytes read=93
+		FILE: Number of bytes written=329601
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1073873355
+		HDFS: Number of bytes written=77
+		HDFS: Number of read operations=10
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=43220
+		Total time spent by all reduces in occupied slots (ms)=10735
+		Total time spent by all map tasks (ms)=8644
+		Total time spent by all reduce tasks (ms)=2147
+		Total vcore-milliseconds taken by all map tasks=8644
+		Total vcore-milliseconds taken by all reduce tasks=2147
+		Total megabyte-milliseconds taken by all map tasks=44257280
+		Total megabyte-milliseconds taken by all reduce tasks=10992640
+	Map-Reduce Framework
+		Map input records=1
+		Map output records=5
+		Map output bytes=77
+		Map output materialized bytes=93
+		Input split bytes=123
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=5
+		Reduce shuffle bytes=93
+		Reduce input records=5
+		Reduce output records=5
+		Spilled Records=10
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=340
+		CPU time spent (ms)=4160
+		Physical memory (bytes) snapshot=2049716224
+		Virtual memory (bytes) snapshot=13648306176
+		Total committed heap usage (bytes)=4525654016
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=336
+	File Output Format Counters 
+		Bytes Written=77
+2016-12-11 22:10:47,075 WARN  [main] hdfs.DFSClient (DFSInputStream.java:<init>(183)) - Creating input stream for file /benchmarks/TestDFSIO/io_read/part-00000
+2016-12-11 22:10:47,120 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - ----- TestDFSIO ----- : read
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -             Date & time: Sun Dec 11 22:10:47 MST 2016
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -         Number of files: 1
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Total MBytes processed: 1024
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -       Throughput mb/sec: 435.56
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - Total Throughput mb/sec: 0.01
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -  Average IO rate mb/sec: 435.56
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -   IO rate std deviation: 0.07
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) -      Test exec time sec: 166.13
+2016-12-11 22:10:47,127 INFO  [main] fs.TestDFSIO (TestDFSIO.java:analyzeResult(966)) - 
+WAN RX for 128.110.153.94: 2356975 bytes
+WAN TX for 128.110.153.94: 90801 bytes
