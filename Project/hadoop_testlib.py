@@ -421,27 +421,37 @@ def format_namenode(shell):
         # don't end up formatting again.
         shell.run("touch formatting_done")
 
-def get_wan_netstats(shell):
+def get_net_stats(shell):
+    """
+    Find network stats for a given node.
+    """
+    # face |bytes    packets errs drop fifo frame compressed multicast|bytes
+    # packets errs drop fifo colls carrier compressed
+    output = shell.run("cat /proc/net/dev").output
+    ip_addr = shell.get_private_ip_addr(allow_public_ip=True)
+    intf_name = shell.run("netstat -ie | grep -B1 '%s' | head -n1 | "
+                          "awk '{print $1}'" % ip_addr).output.strip()
+
+    for line in output.split("\n"):
+        line = line.strip()
+        if line.startswith(intf_name):
+            stats = line.split()
+            # Fetch rxBytes, txBytes
+            return int(stats[1]), int(stats[9])
+
+    return None
+
+def get_wan_netstats(slave_shells):
     """
     Appends WAN usage for slave nodes that are running on another GD cluster.
     """
     wan_output = {}
-    slave_ip_addrs = shell.run("cat instances").output.strip().split("\n")
-    for ip_addr in slave_ip_addrs:
+    for slave_shell in slave_shells:
+        ip_addr = slave_shell.get_private_ip_addr(allow_public_ip=True)
         if not is_public_addr(ip_addr):
             # Don't need netstats for nodes on the same cluster
             continue
-
-        # face |bytes    packets errs drop fifo frame compressed multicast|bytes
-        # packets errs drop fifo colls carrier compressed
-        output = shell.run("ssh %s cat /proc/net/dev" % ip_addr).output
-        for line in output.split("\n"):
-            line = line.strip()
-            # We assume that public IP addr will always be on eth0
-            if line.startswith("eth0"):
-                stats = line.split()
-                # Fetch rxBytes, txBytes
-                wan_output[ip_addr] = (int(stats[1]), int(stats[9]))
+        wan_output[ip_addr] = get_net_stats(slave_shell)
 
     return wan_output
 
@@ -489,9 +499,32 @@ def run_TestDFSIO(shell, slave_shells, result_file="results.out",
     # caching
     drop_caches([shell] + slave_shells)
 
-    wan_usage_before = get_wan_netstats(shell)
+    wan_usage_before = get_wan_netstats(slave_shells)
+
+    usage_before = {}
+    usage_after = {}
+    for slave_shell in [shell] + slave_shells:
+        usage_before[slave_shell.get_private_ip_addr(allow_public_ip=False)] = \
+            get_net_stats(slave_shell)
+
     output = shell.run_hadoop_cmd(cmd).output
-    wan_usage_after = get_wan_netstats(shell)
+
+    wan_usage_after = get_wan_netstats(slave_shells)
+
+    for slave_shell in [shell] + slave_shells:
+        usage_after[slave_shell.get_private_ip_addr(allow_public_ip=False)] = \
+            get_net_stats(slave_shell)
+
+    for ip_addr in usage_before:
+        shell_usage_before = usage_before[ip_addr]
+        shell_usage_after = usage_after[ip_addr]
+        output += "USAGE %s RX: %d bytes\n" % (ip_addr,
+                                               shell_usage_after[0] - 
+                                               shell_usage_before[0])
+        output += "USAGE %s TX: %d bytes\n" % (ip_addr,
+                                               shell_usage_after[1] -
+                                               shell_usage_before[1])
+
 
     # Append WAN usage before for slaves running in another GD cluster
     if wan_usage_before:
